@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models
 {
-    internal class Ogrenci : Yolcu
+    internal class Ogrenci : Yolcu , Indirim
     {
+        void Indirim.indirim()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

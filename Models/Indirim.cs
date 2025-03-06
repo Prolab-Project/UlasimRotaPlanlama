@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models
 {
-    internal class Yasli :  Yolcu , Indirim
+    interface Indirim
     {
-        void Indirim.indirim()
-        {
-            throw new NotImplementedException();
-        }
+        void indirim();
     }
 }
