@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UlasimRotaPlanlama.Models
+namespace UlasimRotaPlanlama.Models.Yolcu
 {
-    internal class Ogrenci : Yolcu , Indirim
+    internal class Yasli :  Yolcu , Indirim
     {
         void Indirim.indirim()
         {

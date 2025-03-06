@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UlasimRotaPlanlama.Models
+namespace UlasimRotaPlanlama.Models.Yolcu
 {
-    internal class Genel: Yolcu
+    abstract class Yolcu
     {
+        public float indirimOrani; 
     }
 }

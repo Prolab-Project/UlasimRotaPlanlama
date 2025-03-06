@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UlasimRotaPlanlama.Models
+namespace UlasimRotaPlanlama.Models.Arac
 {
     abstract class Arac
     {
