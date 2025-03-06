@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UlasimRotaPlanlama.Models.Arac
+namespace UlasimRotaPlanlama.Models.Arac.Otobus
 {
     class Otobus
     {

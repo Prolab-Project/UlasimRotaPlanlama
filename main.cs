@@ -1,7 +1,21 @@
+using System;
+using System.IO;
+
 namespace UlasimRotaPlanlama
 {
     internal static class main
     {
+
+        static void DosyaOkuma()
+        {
+            string writeText = "hello bedirhan";
+            File.WriteAllText("bedirhan.txt" , writeText);
+
+            string readText;
+            readText = File.ReadAllText("bedirhan.txt");
+
+            Console.WriteLine(readText);
+        }
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -13,6 +27,7 @@ namespace UlasimRotaPlanlama
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
             Application.Run(new Form1());
+
         }
     }
 }
