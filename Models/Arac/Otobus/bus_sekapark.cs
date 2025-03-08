@@ -22,12 +22,12 @@ namespace UlasimRotaPlanlama.Models.Arac.Otobus
 
             JsonDocument doc = JsonDocument.Parse(DosyaOku);
             JsonElement root = doc.RootElement;
-            id = root.GetProperty("duraklar").EnumerateArray().ElementAt(0).GetProperty("id").GetString();
-            name = root.GetProperty("duraklar").EnumerateArray().ElementAt(0).GetProperty("name").GetString();
-            type = root.GetProperty("duraklar").EnumerateArray().ElementAt(0).GetProperty("type").GetString();
-            sonDurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(0).GetProperty("sonDurak").GetBoolean();
-            lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(0).GetProperty("lat").GetDouble();
-            lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(0).GetProperty("lon").GetDouble();
+            id = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("id").GetString();
+            name = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("name").GetString();
+            type = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("type").GetString();
+            sonDurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("sonDurak").GetBoolean();
+            lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("lat").GetDouble();
+            lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("lon").GetDouble();
 
             Console.WriteLine("id: " + id);
             Console.WriteLine("name: " + name);
