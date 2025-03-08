@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models
 {
-    abstract class Durak
+    interface Durak
     {
+        void KonumBilgisi();
     }
 }
