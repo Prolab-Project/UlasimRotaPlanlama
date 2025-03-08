@@ -19,8 +19,8 @@ namespace UlasimRotaPlanlama.Models.Arac.Otobus
             using JsonDocument doc = JsonDocument.Parse(DosyaOku);
             JsonElement root = doc.RootElement;
 
-            lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("lat").GetDouble();
-            lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(1).GetProperty("lon").GetDouble();
+            lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("lat").GetDouble();
+            lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("lon").GetDouble();
         }
     }
 }
