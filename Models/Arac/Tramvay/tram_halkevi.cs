@@ -19,8 +19,8 @@ namespace UlasimRotaPlanlama.Models.Arac.Tramvay
             JsonDocument doc = JsonDocument.Parse(DosyaOku);
             JsonElement root = doc.RootElement;
 
-            lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(8).GetProperty("lat").GetDouble();
-            lon = root.GetProperty("durakalr").EnumerateArray().ElementAt(8).GetProperty("lon").GetDouble();
+            lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(9).GetProperty("lat").GetDouble();
+            lon = root.GetProperty("durakalr").EnumerateArray().ElementAt(9).GetProperty("lon").GetDouble();
 
         }
     }
