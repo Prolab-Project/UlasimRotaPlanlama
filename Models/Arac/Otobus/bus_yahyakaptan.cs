@@ -7,14 +7,8 @@ using System.Text.Json;
 
 namespace UlasimRotaPlanlama.Models.Arac.Otobus
 {
-    class bus_yahyakaptan : Durak
+    class bus_yahyakaptan : Otobus, Durak
     {
-        public string id;
-        public string name;
-        public string type;
-        public double lat;
-        public double lon;
-        public bool sonDurak;
         public void KonumBilgisi()
         {
             string DosyaOku;

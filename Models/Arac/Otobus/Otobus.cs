@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Arac.Otobus
 {
-    abstract class Otobus : Arac
+    abstract class Otobus 
     {
+        public string id;
+        public string name;
+        public string type;
+        public double lat;
+        public double lon;
+        public bool sonDurak;
     }
 }

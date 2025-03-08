@@ -7,14 +7,8 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Arac.Otobus
 {
-    class bus_sekapark : Durak
+    class bus_sekapark : Otobus , Durak
     {
-        public string id;
-        public string name;
-        public string type;
-        public double lat;
-        public double lon;
-        public bool sonDurak;
         public void KonumBilgisi()
         {
             string DosyaOku;
