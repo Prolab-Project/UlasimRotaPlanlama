@@ -14,7 +14,7 @@ namespace UlasimRotaPlanlama.Models.Arac.Otobus
         public void KonumBilgisi()
         {
             string DosyaOku;
-            DosyaOku = File.ReadAllText("C:\\Users\\Ömer\\Desktop\\moovit\\bedirhan.json");
+            DosyaOku = File.ReadAllText("dataset/bedirhan.json");
 
             JsonDocument doc = JsonDocument.Parse(DosyaOku);
             JsonElement root = doc.RootElement;

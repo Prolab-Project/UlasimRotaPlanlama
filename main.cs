@@ -1,5 +1,8 @@
 using System;
 using System.IO;
+using Microsoft.VisualBasic.Logging;
+using System.Text.Json;
+using System.Security.Cryptography.X509Certificates;
 
 namespace UlasimRotaPlanlama
 {
@@ -24,10 +27,9 @@ namespace UlasimRotaPlanlama
         {
             Console.WriteLine("agmþe");
             // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
-
+            // see https://aka.ms/applicationconfiguration
+            //ApplicationConfiguration.Initialize();
+           // Application.Run(new Form1());
         }
     }
 }
