@@ -9,8 +9,13 @@ namespace UlasimRotaPlanlama.Models.Arac.Otobus
 {
     class bus_41burda : Durak
     {
+        public string id;
+        public string name;
+        public string type;
         public double lat;
-        public double lon; 
+        public double lon;
+        public bool sonDurak;
+
         public void KonumBilgisi()
         {
             string DosyaOku;
@@ -19,8 +24,19 @@ namespace UlasimRotaPlanlama.Models.Arac.Otobus
             using JsonDocument doc = JsonDocument.Parse(DosyaOku);
             JsonElement root = doc.RootElement;
 
+            id = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("id").GetString();
+            name = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("name").GetString();
+            type = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("type").GetString();
+            sonDurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("sonDurak").GetBoolean();
             lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("lat").GetDouble();
             lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(5).GetProperty("lon").GetDouble();
+
+            Console.WriteLine("id: " + id);
+            Console.WriteLine("name: " + name);
+            Console.WriteLine("type: " + type);
+            Console.WriteLine("son Durak: " + sonDurak);
+            Console.WriteLine("lat: " + lat);
+            Console.WriteLine("lon: " + lon);
         }
     }
 }
