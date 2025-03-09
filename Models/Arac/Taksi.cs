@@ -12,7 +12,7 @@ namespace UlasimRotaPlanlama.Models.Arac
         public Taksi() { }
         public double openingFee;
         public double costPerKm; 
-        public void KonumBilgisi()
+        public void DurakBilgisi()
         {
             string DosyaOku;
             DosyaOku = File.ReadAllText("dataset/bedirhan.json");

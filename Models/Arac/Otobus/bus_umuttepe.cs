@@ -10,13 +10,14 @@ namespace UlasimRotaPlanlama.Models.Arac.Otobus
 {
     class bus_umuttepe : Otobus , Durak
     {
-        public void KonumBilgisi()
+        public void DurakBilgisi()
         {
             string DosyaOku;
             DosyaOku = File.ReadAllText("dataset/bedirhan.json");
 
             JsonDocument doc = JsonDocument.Parse(DosyaOku);
             JsonElement root = doc.RootElement;
+
             id = root.GetProperty("duraklar").EnumerateArray().ElementAt(3).GetProperty("id").GetString();
             name = root.GetProperty("duraklar").EnumerateArray().ElementAt(3).GetProperty("name").GetString();
             type = root.GetProperty("duraklar").EnumerateArray().ElementAt(3).GetProperty("type").GetString();

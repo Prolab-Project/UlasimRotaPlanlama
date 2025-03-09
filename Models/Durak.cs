@@ -8,6 +8,6 @@ namespace UlasimRotaPlanlama.Models
 {
     interface Durak
     {
-        void KonumBilgisi();
+        void DurakBilgisi();
     }
 }

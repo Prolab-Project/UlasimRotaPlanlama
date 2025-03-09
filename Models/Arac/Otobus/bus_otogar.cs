@@ -10,8 +10,7 @@ namespace UlasimRotaPlanlama.Models.Arac.Otobus
 {
     class bus_otogar :  Otobus , Durak
     {
-            
-            public void KonumBilgisi()
+            public void DurakBilgisi()
             {
                 string DosyaOku;
                 DosyaOku = File.ReadAllText("dataset/bedirhan.json");
