@@ -4,6 +4,7 @@ using Microsoft.VisualBasic.Logging;
 using System.Text.Json;
 using System.Security.Cryptography.X509Certificates;
 using UlasimRotaPlanlama.Models.Arac.Otobus;
+using UlasimRotaPlanlama.Models.Arac;
 
 namespace UlasimRotaPlanlama
 {
@@ -36,7 +37,15 @@ namespace UlasimRotaPlanlama
             Console.WriteLine(costPerKm + "," + openingFee);
 
             bus_otogar bus  = new bus_otogar();
-            bus.KonumBilgisi(); 
+            //bus.DurakBilgisi();
+
+            double lat_konum = Convert.ToDouble(Console.ReadLine());
+            double lon_konum = Convert.ToDouble(Console.ReadLine());
+            
+            Taksi taksi = new Taksi();
+            taksi.MesafeHesaplama(lat_konum , lon_konum , 29.94533 , 40.78317);
+
+            
         }
     }
 }

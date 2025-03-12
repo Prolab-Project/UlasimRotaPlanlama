@@ -27,7 +27,24 @@ namespace UlasimRotaPlanlama.Models.Arac
 
             Console.WriteLine(openingFee + "," + costPerKm);
         }
-        public override double UcretHesapla(double mevcut_lat, double mevcut_lon, double hedef_lat , double hedef_lon)
+
+        public void MesafeHesaplama(double lat , double lon , double durak_lon , double durak_lat)
+        {
+            double derece_lat = Math.Abs(lat - durak_lat);
+            double metre_lat = derece_lat * 111320;
+
+            double derece_lon = Math.Abs(lon - durak_lon);
+            double metre_lon = derece_lon * 85170;
+
+            double pisagor_lat = metre_lat * metre_lat;
+            double pisagor_lon = metre_lon * metre_lon;
+
+            double mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
+
+            Console.WriteLine("mesafe hesaplanıyor:");
+            Console.WriteLine(mesafe);
+        }
+        /*public override double UcretHesapla(double mevcut_lat, double mevcut_lon, double hedef_lat , double hedef_lon)
         {
             Console.WriteLine("Mevcut konum: " + mevcut_lat + mevcut_lon); 
             double mesafe = Haversine(mevcut_lat, mevcut_lon , hedef_lat, hedef_lon);
@@ -37,6 +54,6 @@ namespace UlasimRotaPlanlama.Models.Arac
             return ucret; 
 
             throw new NotImplementedException();
-        }
+        }*/
     }
 }

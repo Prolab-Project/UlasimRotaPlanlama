@@ -11,7 +11,7 @@ namespace UlasimRotaPlanlama.Models.Arac.Tramvay
     {
         public double lat;
         public double lon;
-        public void KonumBilgisi()
+        public void DurakBilgisi()
         {
             string DosyaOku;
             DosyaOku = File.ReadAllText("dataset/bedirhan.json");

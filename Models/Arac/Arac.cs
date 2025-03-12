@@ -8,7 +8,7 @@ namespace UlasimRotaPlanlama.Models.Arac
 {
     abstract class Arac
     {
-        public abstract double UcretHesapla(double mevcut_lat , double mevcut_lon , double hedef_lat, double hedef_lon);
+        /*public abstract double UcretHesapla(double mevcut_lat , double mevcut_lon , double hedef_lat, double hedef_lon);
         public static double Haversine(double mevcut_lat, double mevcut_lon, double hedef_lat, double hedef_lon)
         {
 
@@ -28,6 +28,8 @@ namespace UlasimRotaPlanlama.Models.Arac
         private static double ToRadians(double derece)
         {
             return derece * ( Math.PI / 180 ); 
-        }
+        }*/
+
+        
     }
 }
