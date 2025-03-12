@@ -11,7 +11,8 @@ namespace UlasimRotaPlanlama.Models.Arac
     {
         public Taksi() { }
         public double openingFee;
-        public double costPerKm; 
+        public double costPerKm;
+        public bool taksi_bin;
         public void DurakBilgisi()
         {
             string DosyaOku;
@@ -43,7 +44,19 @@ namespace UlasimRotaPlanlama.Models.Arac
 
             Console.WriteLine("mesafe hesaplanıyor:");
             Console.WriteLine(mesafe);
+        
+            if(mesafe / 1000 > 3)
+            {
+                taksi_bin = true;
+            }
+            else
+            {
+                taksi_bin = false;
+            }
+            
         }
+
+
         /*public override double UcretHesapla(double mevcut_lat, double mevcut_lon, double hedef_lat , double hedef_lon)
         {
             Console.WriteLine("Mevcut konum: " + mevcut_lat + mevcut_lon); 

@@ -44,7 +44,7 @@ namespace UlasimRotaPlanlama
             
             Taksi taksi = new Taksi();
             taksi.MesafeHesaplama(lat_konum , lon_konum , 29.94533 , 40.78317);
-
+            Console.WriteLine(taksi.taksi_bin);
             
         }
     }
