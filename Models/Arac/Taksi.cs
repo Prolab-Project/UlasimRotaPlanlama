@@ -13,6 +13,8 @@ namespace UlasimRotaPlanlama.Models.Arac
         public double openingFee;
         public double costPerKm;
         public bool taksi_bin;
+        public double toplamucret;
+        public double mesafe;
         public void DurakBilgisi()
         {
             string DosyaOku;
@@ -40,7 +42,7 @@ namespace UlasimRotaPlanlama.Models.Arac
             double pisagor_lat = metre_lat * metre_lat;
             double pisagor_lon = metre_lon * metre_lon;
 
-            double mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
+            mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
 
             Console.WriteLine("mesafe hesaplanıyor:");
             Console.WriteLine(mesafe);
@@ -52,8 +54,16 @@ namespace UlasimRotaPlanlama.Models.Arac
             else
             {
                 taksi_bin = false;
+            }   
+        }
+
+        public void UcretHesapla()
+        {
+            if(taksi_bin == true)
+            {
+                toplamucret = costPerKm * (mesafe / 1000);
+                Console.WriteLine(toplamucret);
             }
-            
         }
 
 

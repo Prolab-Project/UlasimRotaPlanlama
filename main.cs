@@ -17,7 +17,6 @@ namespace UlasimRotaPlanlama
         [STAThread]
         static void Main()
         {
-            Console.WriteLine("agmþe");
             //ApplicationConfiguration.Initialize();
            // Application.Run(new Form1());
 
@@ -34,7 +33,7 @@ namespace UlasimRotaPlanlama
             openingFee = taxi.GetProperty("openingFee").GetDouble();
             costPerKm = taxi.GetProperty("costPerKm").GetDouble();
 
-            Console.WriteLine(costPerKm + "," + openingFee);
+            //Console.WriteLine(costPerKm + "," + openingFee);
 
             bus_otogar bus  = new bus_otogar();
             //bus.DurakBilgisi();
@@ -45,6 +44,7 @@ namespace UlasimRotaPlanlama
             Taksi taksi = new Taksi();
             taksi.MesafeHesaplama(lat_konum , lon_konum , 29.94533 , 40.78317);
             Console.WriteLine(taksi.taksi_bin);
+            taksi.UcretHesapla();
             
         }
     }
