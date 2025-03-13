@@ -9,12 +9,17 @@ namespace UlasimRotaPlanlama.Models.Arac
 {
     internal class Taksi : Arac, Durak
     {
-        public Taksi() { }
+        
         public double openingFee;
         public double costPerKm;
         public bool taksi_bin;
         public double toplamucret;
         public double mesafe;
+
+        public Taksi() {
+            DurakBilgisi();
+        }
+
         public void DurakBilgisi()
         {
             string DosyaOku;
@@ -25,13 +30,13 @@ namespace UlasimRotaPlanlama.Models.Arac
 
             JsonElement taxi = root.GetProperty("taxi");
 
-            openingFee = taxi.GetProperty("openingFee").GetDouble();
-            costPerKm = taxi.GetProperty("costPerKm").GetDouble();
+            this.openingFee = taxi.GetProperty("openingFee").GetDouble();
+            this.costPerKm = taxi.GetProperty("costPerKm").GetDouble();
 
             Console.WriteLine(openingFee + "," + costPerKm);
         }
 
-        public void MesafeHesaplama(double lat , double lon , double durak_lon , double durak_lat)
+        public void MesafeHesaplama(double lat , double lon , double durak_lat , double durak_lon)
         {
             double derece_lat = Math.Abs(lat - durak_lat);
             double metre_lat = derece_lat * 111320;
@@ -61,22 +66,10 @@ namespace UlasimRotaPlanlama.Models.Arac
         {
             if(taksi_bin == true)
             {
+                Console.WriteLine(costPerKm);
                 toplamucret = costPerKm * (mesafe / 1000);
                 Console.WriteLine(toplamucret);
             }
         }
-
-
-        /*public override double UcretHesapla(double mevcut_lat, double mevcut_lon, double hedef_lat , double hedef_lon)
-        {
-            Console.WriteLine("Mevcut konum: " + mevcut_lat + mevcut_lon); 
-            double mesafe = Haversine(mevcut_lat, mevcut_lon , hedef_lat, hedef_lon);
-            Console.WriteLine ("Gidilmesi gereken mesafe " + mesafe);
-            double ucret = openingFee + (costPerKm * mesafe);
-            Console.WriteLine("Odenecek ucret : " + ucret);
-            return ucret; 
-
-            throw new NotImplementedException();
-        }*/
     }
 }
