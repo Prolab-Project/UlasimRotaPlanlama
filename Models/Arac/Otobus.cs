@@ -14,8 +14,18 @@ namespace UlasimRotaPlanlama.Models.Arac
         public double lat;
         public double lon;
         public bool sonDurak;
-    
-        Otobus(string id, string name, string type, double lat, double lon, bool sonDurak)
+
+        public Otobus()
+        {
+            id = "0";
+            name = "Bilinmeyen";
+            type = "Standart";
+            lat = 0.0;
+            lon = 0.0;
+            sonDurak = false;
+        }
+
+        public Otobus(string id, string name, string type, double lat, double lon, bool sonDurak)
         {
             this.id = id;
             this.name = name;

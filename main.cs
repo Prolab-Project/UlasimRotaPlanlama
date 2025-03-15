@@ -4,6 +4,8 @@ using Microsoft.VisualBasic.Logging;
 using System.Text.Json;
 using System.Security.Cryptography.X509Certificates;
 using UlasimRotaPlanlama.Models.Arac;
+using System.Collections;
+using System.Xml.Linq;
 
 namespace UlasimRotaPlanlama
 {
@@ -34,11 +36,16 @@ namespace UlasimRotaPlanlama
             return data;
         }
 
+        static Otobus OtobusOlustur()
+        {
+            return new Otobus { id = "jnkef", name = "knse", type = "knsngsegý", lat = 12.12, lon = 12.12, sonDurak = false };
+        }
+
         [STAThread]
         static void Main()
         {
             //ApplicationConfiguration.Initialize();
-           // Application.Run(new Form1());
+            // Application.Run(new Form1());
 
             double openingFee,costPerKm;
              
@@ -63,8 +70,22 @@ namespace UlasimRotaPlanlama
             //taksi.UcretHesapla();
             //taksi.DurakBilgisi();
 
-            string data = JsonCekme(1);
-            Console.WriteLine(data);
+            ArrayList BusData = new ArrayList();
+            BusData.Add(JsonCekme(0));
+            BusData.Add(JsonCekme(1));
+            BusData.Add(JsonCekme(2));
+            BusData.Add(JsonCekme(3));
+            BusData.Add(JsonCekme(4));
+            BusData.Add(JsonCekme(5));
+
+            foreach(var elements in BusData)
+            {
+                Console.WriteLine(elements);
+            }
+
+            Otobus BusOtogar = OtobusOlustur();
+
+
         }
     }
 }
