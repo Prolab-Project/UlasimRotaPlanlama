@@ -104,6 +104,10 @@ namespace UlasimRotaPlanlama
             Otobus BusOtogar = OtobusOlustur(BusData[0].ToString());
             double lon = BusOtogar.lon;
             Console.WriteLine(lon);
+
+            Otobus BusSekapark = OtobusOlustur(BusData[1].ToString());
+            double lon2 = BusSekapark.lon;
+            Console.WriteLine(lon2);
         }
     }
 }
