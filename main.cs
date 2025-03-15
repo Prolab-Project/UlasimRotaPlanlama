@@ -106,8 +106,24 @@ namespace UlasimRotaPlanlama
             Console.WriteLine(lon);
 
             Otobus BusSekapark = OtobusOlustur(BusData[1].ToString());
-            double lon2 = BusSekapark.lon;
+            double lon1 = BusSekapark.lon;
+            Console.WriteLine(lon1);
+
+            Otobus BusYahyakaptan = OtobusOlustur(BusData[2].ToString());
+            double lon2 = BusYahyakaptan.lon;
             Console.WriteLine(lon2);
+
+            Otobus BusUmuttepe = OtobusOlustur(BusData[3].ToString());
+            double lon3 = BusUmuttepe.lon;
+            Console.WriteLine(lon3);
+
+            Otobus BusSymbolavm = OtobusOlustur(BusData[4].ToString());
+            double lon4 = BusSymbolavm.lon;
+            Console.WriteLine(lon4);
+
+            Otobus Bus41Burada = OtobusOlustur(BusData[5].ToString());
+            double lon5 = Bus41Burada.lon;
+            Console.WriteLine(lon5);
         }
     }
 }
