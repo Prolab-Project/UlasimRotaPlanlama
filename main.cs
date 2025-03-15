@@ -24,21 +24,39 @@ namespace UlasimRotaPlanlama
             string id;
             bool sondurak;
             string type;
-
+            string name;
+            
             lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lat").GetDouble();
             lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lon").GetDouble();
             id = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("id").GetString();
             sondurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("sonDurak").GetBoolean();
             type = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("type").GetString();
+            name = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("name").GetString();
 
-            string data = $"{lat} , {lon} , {id} , {sondurak} , {type}";
+            string data = $"{lat} / {lon} / {id} / {sondurak} / {type} / {name}";
 
             return data;
         }
 
-        static Otobus OtobusOlustur()
+        public static Otobus OtobusOlustur(string data)
         {
-            return new Otobus { id = "jnkef", name = "knse", type = "knsngsegý", lat = 12.12, lon = 12.12, sonDurak = false };
+            string id;
+            string name;
+            string type;
+            double lat;
+            double lon;
+            bool sonDurak;
+
+            string[] value = data.Split("/");
+
+            lat = Convert.ToDouble(value[0]);
+            lon = Convert.ToDouble(value[1]);
+            id = value[2];
+            sonDurak = Convert.ToBoolean(value[3]);
+            type = value[4];
+            name = value[5];
+
+            return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
         }
 
         [STAThread]
@@ -77,15 +95,15 @@ namespace UlasimRotaPlanlama
             BusData.Add(JsonCekme(3));
             BusData.Add(JsonCekme(4));
             BusData.Add(JsonCekme(5));
-
+            
             foreach(var elements in BusData)
             {
                 Console.WriteLine(elements);
             }
 
-            Otobus BusOtogar = OtobusOlustur();
-
-
+            Otobus BusOtogar = OtobusOlustur(BusData[0].ToString());
+            double lon = BusOtogar.lon;
+            Console.WriteLine(lon);
         }
     }
 }
