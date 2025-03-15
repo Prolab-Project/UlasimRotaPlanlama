@@ -20,12 +20,16 @@ namespace UlasimRotaPlanlama
             double lat;
             double lon;
             string id;
+            bool sondurak;
+            string type;
 
             lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lat").GetDouble();
             lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lon").GetDouble();
             id = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("id").GetString();
+            sondurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("sonDurak").GetBoolean();
+            type = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("type").GetString();
 
-            string data = $"{lat} , {lon} , {id}";
+            string data = $"{lat} , {lon} , {id} , {sondurak} , {type}";
 
             return data;
         }
@@ -55,12 +59,12 @@ namespace UlasimRotaPlanlama
             //double lon_konum = Convert.ToDouble(Console.ReadLine());
             
             Taksi taksi = new Taksi();
-            taksi.MesafeHesaplama(40.75359, 29.95328, 40.78259, 29.94628);
+            //taksi.MesafeHesaplama(40.75359, 29.95328, 40.78259, 29.94628);
             //taksi.UcretHesapla();
             //taksi.DurakBilgisi();
 
-            JsonCekme(1);
-            
+            string data = JsonCekme(1);
+            Console.WriteLine(data);
         }
     }
 }
