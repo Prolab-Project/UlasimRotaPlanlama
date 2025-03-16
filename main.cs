@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using UlasimRotaPlanlama.Models.Arac;
 using System.Collections;
 using System.Xml.Linq;
+using UlasimRotaPlanlama.Models.Yolcu;
 
 namespace UlasimRotaPlanlama
 {
@@ -57,6 +58,27 @@ namespace UlasimRotaPlanlama
             name = value[5];
 
             return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
+        }
+
+        public static Tramvay TramvayOlustur(string data)
+        {
+            string id;
+            string name;
+            string type;
+            double lat;
+            double lon;
+            bool sonDurak;
+
+            string[] value = data.Split("/");
+
+            lat = Convert.ToDouble(value[0]);
+            lon = Convert.ToDouble(value[1]);
+            id = value[2];
+            sonDurak = Convert.ToBoolean(value[3]);
+            type = value[4];
+            name = value[5];
+            
+            return new Tramvay { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
         }
 
         [STAThread]
@@ -135,6 +157,8 @@ namespace UlasimRotaPlanlama
             Otobus Bus41Burada = OtobusOlustur(BusData[5].ToString());
             double lon5 = Bus41Burada.lon;
             Console.WriteLine(lon5);
+
+            Tramvay TramOtogar = TramvayOlustur(TramvayData[0].ToString());
         }
     }
 }

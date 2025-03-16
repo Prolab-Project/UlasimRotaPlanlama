@@ -15,7 +15,17 @@ namespace UlasimRotaPlanlama.Models.Arac
         public double lon;
         public bool sonDurak;
 
-        Tramvay(string id, string name, string type, double lat, double lon, bool sonDurak)
+        public Tramvay()
+        {
+            id = "0";
+            name = "Bilinmeyen";
+            type = "Standart";
+            lat = 0.0;
+            lon = 0.0;
+            sonDurak = false;
+
+        }
+        public Tramvay(string id, string name, string type, double lat, double lon, bool sonDurak)
         {
             this.id = id;
             this.name = name;
