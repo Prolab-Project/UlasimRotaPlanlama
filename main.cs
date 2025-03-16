@@ -95,10 +95,21 @@ namespace UlasimRotaPlanlama
             BusData.Add(JsonCekme(3));
             BusData.Add(JsonCekme(4));
             BusData.Add(JsonCekme(5));
-            
-            foreach(var elements in BusData)
+
+            ArrayList TramvayData = new ArrayList();
+            TramvayData.Add(JsonCekme(6));
+            TramvayData.Add(JsonCekme(7));
+            TramvayData.Add(JsonCekme(8));
+            TramvayData.Add(JsonCekme(9));
+
+            foreach (var elements in BusData)
             {
                 Console.WriteLine(elements);
+            }
+
+            foreach(var elements in TramvayData)
+            {
+                Console.WriteLine(elements);   
             }
 
             Otobus BusOtogar = OtobusOlustur(BusData[0].ToString());
