@@ -39,7 +39,7 @@ namespace UlasimRotaPlanlama
             bool sondurak;
             string type;
             string name;
-            
+
             lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lat").GetDouble();
             lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lon").GetDouble();
             id = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("id").GetString();
@@ -90,7 +90,7 @@ namespace UlasimRotaPlanlama
             sonDurak = Convert.ToBoolean(value[3]);
             type = value[4];
             name = value[5];
-            
+
             return new Tramvay { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
         }
 
@@ -100,8 +100,8 @@ namespace UlasimRotaPlanlama
             //ApplicationConfiguration.Initialize();
             // Application.Run(new Form1());
 
-            double openingFee,costPerKm;
-             
+            double openingFee, costPerKm;
+
             string DosyaOku;
             DosyaOku = File.ReadAllText("Dataset/bedirhan.json");
 
@@ -109,7 +109,7 @@ namespace UlasimRotaPlanlama
             JsonElement root = doc.RootElement;
 
             JsonElement taxi = root.GetProperty("taxi");
-                
+
             openingFee = taxi.GetProperty("openingFee").GetDouble();
             costPerKm = taxi.GetProperty("costPerKm").GetDouble();
 
@@ -117,7 +117,7 @@ namespace UlasimRotaPlanlama
 
             //double lat_konum = Convert.ToDouble(Console.ReadLine());
             //double lon_konum = Convert.ToDouble(Console.ReadLine());
-            
+
             Taksi taksi = new Taksi();
             //taksi.MesafeHesaplama(40.75359, 29.95328, 40.78259, 29.94628);
             //taksi.UcretHesapla();
@@ -142,9 +142,9 @@ namespace UlasimRotaPlanlama
                 Console.WriteLine(elements);
             }
 
-            foreach(var elements in TramvayData)
+            foreach (var elements in TramvayData)
             {
-                Console.WriteLine(elements);   
+                Console.WriteLine(elements);
             }
 
             Otobus BusOtogar = OtobusOlustur(BusData[0].ToString());
@@ -176,7 +176,7 @@ namespace UlasimRotaPlanlama
 
 
             List<Otobus> otobusDuraklari = new List<Otobus>();
-            for (int i = 0; i < 6; i++) 
+            for (int i = 0; i < 6; i++)
             {
                 otobusDuraklari.Add(OtobusOlustur(JsonCekme(i)));
             }
@@ -188,6 +188,11 @@ namespace UlasimRotaPlanlama
 
             double minMesafe = double.MaxValue;
             Otobus enYakinDurak = null;
+            for (int i = 0; i < 6; i++)
+            {
+                Console.WriteLine($"Durak {i}: " + JsonCekme(i));
+            }
+
 
             foreach (var durak in otobusDuraklari)
             {
@@ -197,16 +202,23 @@ namespace UlasimRotaPlanlama
                 {
                     minMesafe = mesafe;
                     enYakinDurak = durak;
+                    Console.WriteLine("asdasd");
                 }
             }
 
             if (enYakinDurak != null)
             {
                 Console.WriteLine($"En yakýn otobus duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
+                if (minMesafe > 3000)
+                {
+                    Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
+                    taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
+                    taksi.UcretHesapla();
+                }
             }
             else
             {
-                Console.WriteLine("Yakýnlarda otobüs duragi bulunamadý.");
+                Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
             }
 
         }
