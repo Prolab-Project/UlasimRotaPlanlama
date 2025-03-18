@@ -12,7 +12,20 @@ namespace UlasimRotaPlanlama
 {
     internal static class main
     {
+        public static double MesafeHesapla(double lat1, double lon1, double lat2, double lon2)
+        {
+            double R = 6371000; // Dünya yarýçapý (metre)
+            double dLat = (lat2 - lat1) * (Math.PI / 180);
+            double dLon = (lon2 - lon1) * (Math.PI / 180);
+            double latRad1 = lat1 * (Math.PI / 180);
+            double latRad2 = lat2 * (Math.PI / 180);
 
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(latRad1) * Math.Cos(latRad2) * Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+            return R * c; // Metre cinsinden mesafe
+        }
         static string JsonCekme(int x)
         {
             string json = File.ReadAllText("dataset/bedirhan.json");
@@ -159,6 +172,43 @@ namespace UlasimRotaPlanlama
             Console.WriteLine(lon5);
 
             Tramvay TramOtogar = TramvayOlustur(TramvayData[0].ToString());
+
+
+
+            List<Otobus> otobusDuraklari = new List<Otobus>();
+            for (int i = 0; i < 6; i++) 
+            {
+                otobusDuraklari.Add(OtobusOlustur(JsonCekme(i)));
+            }
+            Console.Write(" enlem (lat): ");
+            double lat_konum = Convert.ToDouble(Console.ReadLine());
+
+            Console.Write(" boylam (lon): ");
+            double lon_konum = Convert.ToDouble(Console.ReadLine());
+
+            double minMesafe = double.MaxValue;
+            Otobus enYakinDurak = null;
+
+            foreach (var durak in otobusDuraklari)
+            {
+                double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
+
+                if (mesafe < minMesafe)
+                {
+                    minMesafe = mesafe;
+                    enYakinDurak = durak;
+                }
+            }
+
+            if (enYakinDurak != null)
+            {
+                Console.WriteLine($"En yakýn otobus duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
+            }
+            else
+            {
+                Console.WriteLine("Yakýnlarda otobüs duragi bulunamadý.");
+            }
+
         }
     }
 }
