@@ -12,19 +12,21 @@ namespace UlasimRotaPlanlama
 {
     internal static class main
     {
-        public static double MesafeHesapla(double lat1, double lon1, double lat2, double lon2)
+        public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
         {
-            double R = 6371000; // Dünya yarýçapý (metre)
-            double dLat = (lat2 - lat1) * (Math.PI / 180);
-            double dLon = (lon2 - lon1) * (Math.PI / 180);
-            double latRad1 = lat1 * (Math.PI / 180);
-            double latRad2 = lat2 * (Math.PI / 180);
+            double derece_lat = Math.Abs(lat - durak_lat);
+            double metre_lat = derece_lat * 111320;
 
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                       Math.Cos(latRad1) * Math.Cos(latRad2) * Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            double derece_lon = Math.Abs(lon - durak_lon);
+            double metre_lon = derece_lon * 85170;
 
-            return R * c; // Metre cinsinden mesafe
+            double pisagor_lat = metre_lat * metre_lat;
+            double pisagor_lon = metre_lon * metre_lon;
+
+            double mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
+
+
+            return mesafe; // Metre cinsinden mesafe
         }
         static string JsonCekme(int x)
         {
@@ -199,16 +201,8 @@ namespace UlasimRotaPlanlama
             openingFee = taxi.GetProperty("openingFee").GetDouble();
             costPerKm = taxi.GetProperty("costPerKm").GetDouble();
 
-            //Console.WriteLine(costPerKm + "," + openingFee);
-
-            //double lat_konum = Convert.ToDouble(Console.ReadLine());
-            //double lon_konum = Convert.ToDouble(Console.ReadLine());
-
             Taksi taksi = new Taksi();
-            //taksi.MesafeHesaplama(40.75359, 29.95328, 40.78259, 29.94628);
-            //taksi.UcretHesapla();
-            //taksi.DurakBilgisi();
-
+            
             ArrayList BusData = new ArrayList();
             BusData.Add(JsonCekme(0));
             BusData.Add(JsonCekme(1));
@@ -238,57 +232,36 @@ namespace UlasimRotaPlanlama
 
             Otobus BusOtogar = OtobusOlustur(BusData[0].ToString());
             otobusDuraklari.Add(BusOtogar);
-            double lon = BusOtogar.lon;
-            Console.WriteLine(lon);
-
+            
             Otobus BusSekapark = OtobusOlustur(BusData[1].ToString());
             otobusDuraklari.Add(BusSekapark);
-            double lon1 = BusSekapark.lon;
-            Console.WriteLine(lon1);
-
+            
             Otobus BusYahyakaptan = OtobusOlustur(BusData[2].ToString());
             otobusDuraklari.Add(BusYahyakaptan);
-            double lon2 = BusYahyakaptan.lon;
-            Console.WriteLine(lon2);
-
+            
             Otobus BusUmuttepe = OtobusOlustur(BusData[3].ToString());
             otobusDuraklari.Add(BusUmuttepe);
-            double lon3 = BusUmuttepe.lon;
-            Console.WriteLine(lon3);
-
+            
             Otobus BusSymbolavm = OtobusOlustur(BusData[4].ToString());
             otobusDuraklari.Add(BusSymbolavm);
-            double lon4 = BusSymbolavm.lon;
-            Console.WriteLine(lon4);
-
+            
             Otobus Bus41Burada = OtobusOlustur(BusData[5].ToString());
             otobusDuraklari.Add(Bus41Burada);
-            double lon5 = Bus41Burada.lon;
-            Console.WriteLine(lon5);
-
 
             List<Tramvay> tramDuraklari = new List<Tramvay>();
 
             Tramvay TramOtogar = TramvayOlustur(TramvayData[0].ToString());
             tramDuraklari.Add(TramOtogar);
-            double lon6 = TramOtogar.lon;
-            Console.WriteLine(lon6); 
-
+            
             Tramvay TramYahyakaptan = TramvayOlustur(TramvayData[1].ToString());
             tramDuraklari.Add(TramYahyakaptan);
-            double lon7 = TramYahyakaptan.lon;
-            Console.WriteLine(lon7); 
-
+            
             Tramvay TramSekapark = TramvayOlustur(TramvayData[2].ToString());
             tramDuraklari.Add(TramSekapark);
-            double lon8 = TramSekapark.lon;
-            Console.WriteLine(lon8); 
-
+            
             Tramvay TramHalkevi = TramvayOlustur(TramvayData[3].ToString());
             tramDuraklari.Add(TramHalkevi);
-            double lon9 = TramHalkevi.lon;
-            Console.WriteLine(lon9);
-
+            
             EnYakinOtobusDuraginiBul(otobusDuraklari, taksi);
 
             //EnYakinTramDuraginiBul(tramDuraklari, taksi); 
