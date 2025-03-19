@@ -94,6 +94,50 @@ namespace UlasimRotaPlanlama
             return new Tramvay { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
         }
 
+        public static void EnYakinOtobusDuraginiBul(List<Otobus> otobusDuraklari, Taksi taksi)
+        {
+            Console.Write(" enlem (lat): ");
+            double lat_konum = Convert.ToDouble(Console.ReadLine());
+
+            Console.Write(" boylam (lon): ");
+            double lon_konum = Convert.ToDouble(Console.ReadLine());
+
+            double minMesafe = double.MaxValue;
+            Otobus enYakinDurak = null;
+
+            for (int i = 0; i < otobusDuraklari.Count; i++)
+            {
+                Console.WriteLine($"Durak {i}: " + otobusDuraklari[i].name);
+            }
+
+            foreach (var durak in otobusDuraklari)
+            {
+                double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
+
+                if (mesafe < minMesafe)
+                {
+                    minMesafe = mesafe;
+                    enYakinDurak = durak;
+                }
+            }
+
+            if (enYakinDurak != null)
+            {
+                Console.WriteLine($"En yakýn otobus duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
+                if (minMesafe > 3000)
+                {
+                    Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
+                    taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
+                    taksi.UcretHesapla();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
+            }
+        }
+
+
         [STAThread]
         static void Main()
         {
@@ -174,52 +218,12 @@ namespace UlasimRotaPlanlama
             Tramvay TramOtogar = TramvayOlustur(TramvayData[0].ToString());
 
 
-
             List<Otobus> otobusDuraklari = new List<Otobus>();
             for (int i = 0; i < 6; i++)
             {
                 otobusDuraklari.Add(OtobusOlustur(JsonCekme(i)));
             }
-            Console.Write(" enlem (lat): ");
-            double lat_konum = Convert.ToDouble(Console.ReadLine());
-
-            Console.Write(" boylam (lon): ");
-            double lon_konum = Convert.ToDouble(Console.ReadLine());
-
-            double minMesafe = double.MaxValue;
-            Otobus enYakinDurak = null;
-            for (int i = 0; i < 6; i++)
-            {
-                Console.WriteLine($"Durak {i}: " + JsonCekme(i));
-            }
-
-
-            foreach (var durak in otobusDuraklari)
-            {
-                double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
-
-                if (mesafe < minMesafe)
-                {
-                    minMesafe = mesafe;
-                    enYakinDurak = durak;
-                    Console.WriteLine("asdasd");
-                }
-            }
-
-            if (enYakinDurak != null)
-            {
-                Console.WriteLine($"En yakýn otobus duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
-                if (minMesafe > 3000)
-                {
-                    Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
-                    taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
-                    taksi.UcretHesapla();
-                }
-            }
-            else
-            {
-                Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
-            }
+            EnYakinOtobusDuraginiBul(otobusDuraklari, taksi);
 
         }
     }
