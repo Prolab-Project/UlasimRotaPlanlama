@@ -216,7 +216,20 @@ namespace UlasimRotaPlanlama
             Console.WriteLine(lon5);
 
             Tramvay TramOtogar = TramvayOlustur(TramvayData[0].ToString());
+            double lon6 = TramOtogar.lon;
+            Console.WriteLine(lon6); 
 
+            Tramvay TramYahyakaptan = TramvayOlustur(TramvayData[1].ToString());
+            double lon7 = TramYahyakaptan.lon;
+            Console.WriteLine(lon7); 
+
+            Tramvay TramSekapark = TramvayOlustur(TramvayData[2].ToString());
+            double lon8 = TramSekapark.lon;
+            Console.WriteLine(lon8); 
+
+            Tramvay TramHalkevi = TramvayOlustur(TramvayData[3].ToString());
+            double lon9 = TramHalkevi.lon;
+            Console.WriteLine(lon9);
 
             List<Otobus> otobusDuraklari = new List<Otobus>();
             for (int i = 0; i < 6; i++)
