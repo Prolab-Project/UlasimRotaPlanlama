@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Arac
 {
-    abstract class Arac
+    public abstract class Arac
     {
         public string id;
         public string name;

@@ -8,6 +8,66 @@ using System.Collections;
 using System.Xml.Linq;
 using UlasimRotaPlanlama.Models.Yolcu;
 
+public class json
+{
+    public string JsonCekme(int x)
+    {
+        string json = File.ReadAllText("dataset/bedirhan.json");
+
+        JsonDocument doc = JsonDocument.Parse(json);
+        JsonElement root = doc.RootElement;
+
+        double lat;
+        double lon;
+        string id;
+        bool sondurak;
+        string type;
+        string name;
+
+        lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lat").GetDouble();
+        lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lon").GetDouble();
+        id = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("id").GetString();
+        sondurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("sonDurak").GetBoolean();
+        type = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("type").GetString();
+        name = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("name").GetString();
+
+        string data = $"{lat} / {lon} / {id} / {sondurak} / {type} / {name}";
+
+        return data;
+    }
+}
+
+public class AracSinifOlustur
+{
+    public static Otobus OtobusOlustur(string data)
+    {
+        string[] value = data.Split("/");
+
+        double lat = Convert.ToDouble(value[0]);
+        double lon = Convert.ToDouble(value[1]);
+        string id = value[2];
+        bool sonDurak = Convert.ToBoolean(value[3]);
+        string type = value[4];
+        string name = value[5];
+
+        return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
+    }
+
+    public static Tramvay TramvayOlustur(string data)
+    {
+        string[] value = data.Split("/");
+
+        double lat = Convert.ToDouble(value[0]);
+        double lon = Convert.ToDouble(value[1]);
+        string id = value[2];
+        bool sonDurak = Convert.ToBoolean(value[3]);
+        string type = value[4];
+        string name = value[5];
+
+        return new Tramvay { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
+    }
+}
+
 namespace UlasimRotaPlanlama
 {
     internal static class main
@@ -27,73 +87,6 @@ namespace UlasimRotaPlanlama
 
 
             return mesafe; // Metre cinsinden mesafe
-        }
-        static string JsonCekme(int x)
-        {
-            string json = File.ReadAllText("dataset/bedirhan.json");
-
-            JsonDocument doc = JsonDocument.Parse(json);
-            JsonElement root = doc.RootElement;
-
-            double lat;
-            double lon;
-            string id;
-            bool sondurak;
-            string type;
-            string name;
-
-            lat = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lat").GetDouble();
-            lon = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("lon").GetDouble();
-            id = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("id").GetString();
-            sondurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("sonDurak").GetBoolean();
-            type = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("type").GetString();
-            name = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("name").GetString();
-
-            string data = $"{lat} / {lon} / {id} / {sondurak} / {type} / {name}";
-
-            return data;
-        }
-
-        public static Otobus OtobusOlustur(string data)
-        {
-            string id;
-            string name;
-            string type;
-            double lat;
-            double lon;
-            bool sonDurak;
-
-            string[] value = data.Split("/");
-
-            lat = Convert.ToDouble(value[0]);
-            lon = Convert.ToDouble(value[1]);
-            id = value[2];
-            sonDurak = Convert.ToBoolean(value[3]);
-            type = value[4];
-            name = value[5];
-
-            return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
-        }
-
-        public static Tramvay TramvayOlustur(string data)
-        {
-            string id;
-            string name;
-            string type;
-            double lat;
-            double lon;
-            bool sonDurak;
-
-            string[] value = data.Split("/");
-
-            lat = Convert.ToDouble(value[0]);
-            lon = Convert.ToDouble(value[1]);
-            id = value[2];
-            sonDurak = Convert.ToBoolean(value[3]);
-            type = value[4];
-            name = value[5];
-
-            return new Tramvay { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
         }
 
         public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
@@ -145,34 +138,23 @@ namespace UlasimRotaPlanlama
             //ApplicationConfiguration.Initialize();
             // Application.Run(new Form1());
 
-            double openingFee, costPerKm;
-
-            string DosyaOku;
-            DosyaOku = File.ReadAllText("Dataset/bedirhan.json");
-
-            using JsonDocument doc = JsonDocument.Parse(DosyaOku);
-            JsonElement root = doc.RootElement;
-
-            JsonElement taxi = root.GetProperty("taxi");
-
-            openingFee = taxi.GetProperty("openingFee").GetDouble();
-            costPerKm = taxi.GetProperty("costPerKm").GetDouble();
-
             Taksi taksi = new Taksi();
+
+            json jsonc = new json();
             
             ArrayList BusData = new ArrayList();
-            BusData.Add(JsonCekme(0));
-            BusData.Add(JsonCekme(1));
-            BusData.Add(JsonCekme(2));
-            BusData.Add(JsonCekme(3));
-            BusData.Add(JsonCekme(4));
-            BusData.Add(JsonCekme(5));
+            BusData.Add(jsonc.JsonCekme(0));
+            BusData.Add(jsonc.JsonCekme(1));
+            BusData.Add(jsonc.JsonCekme(2));
+            BusData.Add(jsonc.JsonCekme(3));
+            BusData.Add(jsonc.JsonCekme(4));
+            BusData.Add(jsonc.JsonCekme(5));
 
             ArrayList TramvayData = new ArrayList();
-            TramvayData.Add(JsonCekme(6));
-            TramvayData.Add(JsonCekme(7));
-            TramvayData.Add(JsonCekme(8));
-            TramvayData.Add(JsonCekme(9));
+            TramvayData.Add(jsonc.JsonCekme(6));
+            TramvayData.Add(jsonc.JsonCekme(7));
+            TramvayData.Add(jsonc.JsonCekme(8));
+            TramvayData.Add(jsonc.JsonCekme(9));
 
             foreach (var elements in BusData)
             {
@@ -184,45 +166,43 @@ namespace UlasimRotaPlanlama
                 Console.WriteLine(elements);
             }
 
-
             List<Arac> otobusDuraklari = new List<Arac>();
 
-            Otobus BusOtogar = OtobusOlustur(BusData[0].ToString());
+            Otobus BusOtogar = AracSinifOlustur.OtobusOlustur(BusData[0].ToString());
             otobusDuraklari.Add(BusOtogar);
             
-            Otobus BusSekapark = OtobusOlustur(BusData[1].ToString());
+            Otobus BusSekapark = AracSinifOlustur.OtobusOlustur(BusData[1].ToString());
             otobusDuraklari.Add(BusSekapark);
             
-            Otobus BusYahyakaptan = OtobusOlustur(BusData[2].ToString());
+            Otobus BusYahyakaptan = AracSinifOlustur.OtobusOlustur(BusData[2].ToString());
             otobusDuraklari.Add(BusYahyakaptan);
             
-            Otobus BusUmuttepe = OtobusOlustur(BusData[3].ToString());
+            Otobus BusUmuttepe = AracSinifOlustur.OtobusOlustur(BusData[3].ToString());
             otobusDuraklari.Add(BusUmuttepe);
             
-            Otobus BusSymbolavm = OtobusOlustur(BusData[4].ToString());
+            Otobus BusSymbolavm = AracSinifOlustur.OtobusOlustur(BusData[4].ToString());
             otobusDuraklari.Add(BusSymbolavm);
             
-            Otobus Bus41Burada = OtobusOlustur(BusData[5].ToString());
+            Otobus Bus41Burada = AracSinifOlustur.OtobusOlustur(BusData[5].ToString());
             otobusDuraklari.Add(Bus41Burada);
 
             List<Arac> tramDuraklari = new List<Arac>();
 
-            Tramvay TramOtogar = TramvayOlustur(TramvayData[0].ToString());
+            Tramvay TramOtogar = AracSinifOlustur.TramvayOlustur(TramvayData[0].ToString());
             tramDuraklari.Add(TramOtogar);
             
-            Tramvay TramYahyakaptan = TramvayOlustur(TramvayData[1].ToString());
+            Tramvay TramYahyakaptan = AracSinifOlustur.TramvayOlustur(TramvayData[1].ToString());
             tramDuraklari.Add(TramYahyakaptan);
             
-            Tramvay TramSekapark = TramvayOlustur(TramvayData[2].ToString());
+            Tramvay TramSekapark = AracSinifOlustur.TramvayOlustur(TramvayData[2].ToString());
             tramDuraklari.Add(TramSekapark);
             
-            Tramvay TramHalkevi = TramvayOlustur(TramvayData[3].ToString());
+            Tramvay TramHalkevi = AracSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
             tramDuraklari.Add(TramHalkevi);
 
             //EnYakinDuragiBul(otobusDuraklari, taksi);
 
             EnYakinDuragiBul(tramDuraklari, taksi); 
-            
         }
     }
 }

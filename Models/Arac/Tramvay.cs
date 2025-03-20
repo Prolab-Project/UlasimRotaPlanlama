@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Arac
 {
-    class Tramvay : Arac 
+    public class Tramvay : Arac 
     {
         public Tramvay()
         {

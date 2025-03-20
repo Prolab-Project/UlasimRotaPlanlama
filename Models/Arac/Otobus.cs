@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Arac
 {
-    class Otobus : Arac
+    public class Otobus : Arac
     {
         public Otobus()
         {
