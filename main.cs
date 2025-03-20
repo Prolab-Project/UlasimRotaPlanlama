@@ -147,6 +147,13 @@ namespace UlasimRotaPlanlama
                     taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
                     taksi.UcretHesapla();
                 }
+
+                if (minMesafeHedef > 3000)
+                {
+                    Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
+                    taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
+                    taksi.UcretHesapla();
+                }
             }
             else
             {
