@@ -96,7 +96,7 @@ namespace UlasimRotaPlanlama
             return new Tramvay { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
         }
 
-        public static void EnYakinOtobusDuraginiBul(List<Otobus> otobusDuraklari, Taksi taksi)
+        public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
         {
             Console.Write(" enlem (lat): ");
             double lat_konum = Convert.ToDouble(Console.ReadLine());
@@ -105,14 +105,14 @@ namespace UlasimRotaPlanlama
             double lon_konum = Convert.ToDouble(Console.ReadLine());
 
             double minMesafe = double.MaxValue;
-            Otobus enYakinDurak = null;
+            Arac enYakinDurak = null;
 
-            for (int i = 0; i < otobusDuraklari.Count; i++)
+            for (int i = 0; i < Durak.Count; i++)
             {
-                Console.WriteLine($"Durak {i}: " + otobusDuraklari[i].name);
+                Console.WriteLine($"Durak {i}: " + Durak[i].name);
             }
 
-            foreach (var durak in otobusDuraklari)
+            foreach (var durak in Durak)
             {
                 double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
 
@@ -125,7 +125,7 @@ namespace UlasimRotaPlanlama
 
             if (enYakinDurak != null)
             {
-                Console.WriteLine($"En yakýn otobus duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
+                Console.WriteLine($"En yakýn duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
                 if (minMesafe > 3000)
                 {
                     Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
@@ -136,49 +136,6 @@ namespace UlasimRotaPlanlama
             else
             {
                 Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
-            }
-        }
-        public static void EnYakinTramDuraginiBul(List<Tramvay> tramDuraklari, Taksi taksi)
-        {
-            Console.WriteLine("enlem girin tramvay ");
-            double lat_konum = Convert.ToDouble(Console.ReadLine());
-
-            Console.WriteLine("boýylam gir tramvay");
-            double lon_konum = Convert.ToDouble(Console.ReadLine());
-
-            double minMesafe = double.MaxValue;
-
-            Tramvay enYakinDurakTram = null;
-
-            for (int i = 0; i < tramDuraklari.Count; i++)
-            {
-                Console.WriteLine($"Durak {i}: " + tramDuraklari[i].name);
-            }
-
-            foreach (var durak in tramDuraklari)
-            {
-                double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
-                if (mesafe < minMesafe)
-                {
-                    minMesafe = mesafe;
-                    enYakinDurakTram = durak;
-                }
-
-            }
-
-            if (enYakinDurakTram != null)
-            {
-                Console.WriteLine($"En yakýn tramvay duragi: {enYakinDurakTram.name}, {minMesafe:F2} metre uzaklýkta.");
-                if (minMesafe > 3000)
-                {
-                    Console.WriteLine("mesafe 3km den fazla taksi kullancan");
-                    taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurakTram.lat, enYakinDurakTram.lon);
-                    taksi.UcretHesapla();
-                }
-            }
-            else
-            {
-                Console.WriteLine("yakinlarda tramvya duraðý bulunamadi");
             }
         }
 
@@ -228,7 +185,7 @@ namespace UlasimRotaPlanlama
             }
 
 
-            List<Otobus> otobusDuraklari = new List<Otobus>();
+            List<Arac> otobusDuraklari = new List<Arac>();
 
             Otobus BusOtogar = OtobusOlustur(BusData[0].ToString());
             otobusDuraklari.Add(BusOtogar);
@@ -248,7 +205,7 @@ namespace UlasimRotaPlanlama
             Otobus Bus41Burada = OtobusOlustur(BusData[5].ToString());
             otobusDuraklari.Add(Bus41Burada);
 
-            List<Tramvay> tramDuraklari = new List<Tramvay>();
+            List<Arac> tramDuraklari = new List<Arac>();
 
             Tramvay TramOtogar = TramvayOlustur(TramvayData[0].ToString());
             tramDuraklari.Add(TramOtogar);
@@ -261,10 +218,10 @@ namespace UlasimRotaPlanlama
             
             Tramvay TramHalkevi = TramvayOlustur(TramvayData[3].ToString());
             tramDuraklari.Add(TramHalkevi);
-            
-            EnYakinOtobusDuraginiBul(otobusDuraklari, taksi);
 
-            //EnYakinTramDuraginiBul(tramDuraklari, taksi); 
+            //EnYakinDuragiBul(otobusDuraklari, taksi);
+
+            EnYakinDuragiBul(tramDuraklari, taksi); 
             
         }
     }

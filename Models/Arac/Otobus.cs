@@ -8,13 +8,6 @@ namespace UlasimRotaPlanlama.Models.Arac
 {
     class Otobus : Arac
     {
-        public string id;
-        public string name;
-        public string type;
-        public double lat;
-        public double lon;
-        public bool sonDurak;
-
         public Otobus()
         {
             id = "0";
