@@ -7,6 +7,7 @@ using UlasimRotaPlanlama.Models.Arac;
 using System.Collections;
 using System.Xml.Linq;
 using UlasimRotaPlanlama.Models.Yolcu;
+using UlasimRotaPlanlama.Models;
 
 public class json
 {
@@ -89,16 +90,27 @@ namespace UlasimRotaPlanlama
             return mesafe; // Metre cinsinden mesafe
         }
 
+
         public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
         {
-            Console.Write(" enlem (lat): ");
+            Console.Write(" mevcut enlem (lat): ");
             double lat_konum = Convert.ToDouble(Console.ReadLine());
 
-            Console.Write(" boylam (lon): ");
+            Console.Write(" mevcut boylam (lon): ");
             double lon_konum = Convert.ToDouble(Console.ReadLine());
 
+            Console.Write(" hedef enlem (lat): ");
+            double hedef_lat = Convert.ToDouble(Console.ReadLine());
+
+            Console.Write(" hedef boylam (lon): ");
+            double hedef_lon = Convert.ToDouble(Console.ReadLine());
+
+
+
             double minMesafe = double.MaxValue;
+            double minMesafeHedef= double.MaxValue;
             Arac enYakinDurak = null;
+            Arac hedefEnYakinDurak = null; 
 
             for (int i = 0; i < Durak.Count; i++)
             {
@@ -108,17 +120,27 @@ namespace UlasimRotaPlanlama
             foreach (var durak in Durak)
             {
                 double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
+                double mesafeHedef = MesafeHesapla(hedef_lat, hedef_lon, durak.lat, durak.lon);
 
                 if (mesafe < minMesafe)
                 {
                     minMesafe = mesafe;
                     enYakinDurak = durak;
                 }
+
+                if (mesafeHedef < minMesafeHedef )
+                {
+                    minMesafeHedef = mesafeHedef;
+                    hedefEnYakinDurak = durak;
+                }
             }
+
 
             if (enYakinDurak != null)
             {
-                Console.WriteLine($"En yakýn duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
+                Console.WriteLine($"En yakýn baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
+                Console.WriteLine($"En yakýn baslangic duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} metre uzaklýkta.");
+
                 if (minMesafe > 3000)
                 {
                     Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
