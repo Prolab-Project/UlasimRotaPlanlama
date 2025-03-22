@@ -1,0 +1,80 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Graph
+{
+    public Dictionary<string, List<(string, int)>> AdjacencyList { get; set; }
+
+    public Graph()
+    {
+        AdjacencyList = new Dictionary<string, List<(string, int)>>();
+    }
+
+    public void AddNode(string id)
+    {
+        if (!AdjacencyList.ContainsKey(id))
+            AdjacencyList[id] = new List<(string, int)>();
+    }
+
+    public void AddEdge(string from, string to, int weight)
+    {
+        if (AdjacencyList.ContainsKey(from))
+            AdjacencyList[from].Add((to, weight));
+    }
+
+    public List<string> Dijkstra(string start, string goal)
+    {
+        var distances = new Dictionary<string, int>();
+        var previous = new Dictionary<string, string>();
+        var queue = new SortedSet<(int, string)>();
+
+        foreach (var node in AdjacencyList.Keys)
+        {
+            distances[node] = int.MaxValue;
+            previous[node] = null;
+        }
+
+        distances[start] = 0;
+        queue.Add((0, start));
+
+        while (queue.Count > 0)
+        {
+            var (currentDistance, currentNode) = queue.First();
+            queue.Remove(queue.First());
+
+            if (currentNode == goal)
+                break;
+
+            foreach (var (neighbor, weight) in AdjacencyList[currentNode])
+            {
+                int newDistance = currentDistance + weight;
+
+                if (newDistance < distances[neighbor])
+                {
+                    queue.Remove((distances[neighbor], neighbor));
+                    distances[neighbor] = newDistance;
+                    previous[neighbor] = currentNode;
+                    queue.Add((newDistance, neighbor));
+                }
+            }
+        }
+
+        return ReconstructPath(previous, start, goal);
+    }
+
+    private List<string> ReconstructPath(Dictionary<string, string> previous, string start, string goal)
+    {
+        var path = new List<string>();
+        string current = goal;
+
+        while (current != null)
+        {
+            path.Add(current);
+            current = previous[current];
+        }
+
+        path.Reverse();
+        return path;
+    }
+}
