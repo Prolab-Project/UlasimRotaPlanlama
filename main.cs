@@ -66,8 +66,14 @@ public class AracSinifOlustur
         bool sonDurak = Convert.ToBoolean(value[3]);
         string type = value[4];
         string name = value[5];
+        List<string> nextStops = new List<string>();
 
-        return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak };
+        if (value.Length > 6)
+        {
+            nextStops = value[6].Split(", ").ToList();
+        }
+
+        return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak, NextStops= nextStops };
     }
 
     public static Tramvay TramvayOlustur(string data)
@@ -248,8 +254,13 @@ namespace UlasimRotaPlanlama
 
             //EnYakinDuragiBul(otobusDuraklari, taksi);
 
-           // EnYakinDuragiBul(tramDuraklari, taksi); 
+            // EnYakinDuragiBul(tramDuraklari, taksi); 
 
+
+            foreach (var stop in BusYahyakaptan.NextStops)
+            {
+                Console.WriteLine(stop);
+            }
         }
     }
 }
