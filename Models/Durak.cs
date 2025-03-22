@@ -9,5 +9,7 @@ namespace UlasimRotaPlanlama.Models
     interface Durak
     {
         void DurakBilgisi();
+        void MesafeHesaplama();
+        void UcretHesapla();
     }
 }
