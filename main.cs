@@ -8,6 +8,12 @@ using System.Collections;
 using System.Xml.Linq;
 using UlasimRotaPlanlama.Models.Yolcu;
 using UlasimRotaPlanlama.Models;
+using GMap.NET; 
+using GMap.NET.MapProviders;
+using GMap.NET.WindowsForms;
+using GMap.NET.WindowsForms.Markers;
+using GMap.NET.WindowsForms.ToolTips;
+
 
 public static class jsonreader
 {
@@ -62,7 +68,6 @@ public class json
         return data;
     }
 }
-
 public class OtobusSinifOlustur
 {
     public static Otobus OtobusOlustur(string data)
@@ -108,180 +113,206 @@ public class TramSinifOlustur
     }
 }
 
-namespace UlasimRotaPlanlama
+namespace HaritaUygulamasi
 {
-    internal static class main
+    public class Form1 : Form
     {
-        public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
+        private GMapControl gMapControl;
+
+        public Form1()
         {
-            double derece_lat = Math.Abs(lat - durak_lat);
-            double metre_lat = derece_lat * 111320;
+            // Form baþlatma
+            this.Text = "Harita Uygulamasý";
+            this.Width = 800;
+            this.Height = 600;
 
-            double derece_lon = Math.Abs(lon - durak_lon);
-            double metre_lon = derece_lon * 85170;
+            // GMapControl oluþtur
+            gMapControl = new GMapControl();
+            gMapControl.Dock = DockStyle.Fill;
 
-            double pisagor_lat = metre_lat * metre_lat;
-            double pisagor_lon = metre_lon * metre_lon;
+            // Harita ayarlarý
+            gMapControl.MapProvider = GMapProviders.GoogleMap;
+            GMaps.Instance.Mode = AccessMode.ServerOnly;
+            gMapControl.Position = new PointLatLng(40.7696, 29.9405); // Kocaeli
+            gMapControl.MinZoom = 5;
+            gMapControl.MaxZoom = 100;
+            gMapControl.Zoom = 12;
+            gMapControl.ShowCenter = false;
 
-            double mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
-
-
-            return mesafe; // Metre cinsinden mesafe
+            // Harita kontrolünü forma ekle
+            this.Controls.Add(gMapControl);
         }
 
-
-        public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
+        internal static class main
         {
-            Console.Write(" mevcut enlem (lat): ");
-            double lat_konum = Convert.ToDouble(Console.ReadLine());
 
-            Console.Write(" mevcut boylam (lon): ");
-            double lon_konum = Convert.ToDouble(Console.ReadLine());
-
-            Console.Write(" hedef enlem (lat): ");
-            double hedef_lat = Convert.ToDouble(Console.ReadLine());
-
-            Console.Write(" hedef boylam (lon): ");
-            double hedef_lon = Convert.ToDouble(Console.ReadLine());
-
-
-
-            double minMesafe = double.MaxValue;
-            double minMesafeHedef= double.MaxValue;
-            Arac enYakinDurak = null;
-            Arac hedefEnYakinDurak = null; 
-
-            for (int i = 0; i < Durak.Count; i++)
+            public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
             {
-                Console.WriteLine($"Durak {i}: " + Durak[i].name);
+                double derece_lat = Math.Abs(lat - durak_lat);
+                double metre_lat = derece_lat * 111320;
+
+                double derece_lon = Math.Abs(lon - durak_lon);
+                double metre_lon = derece_lon * 85170;
+
+                double pisagor_lat = metre_lat * metre_lat;
+                double pisagor_lon = metre_lon * metre_lon;
+
+                double mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
+
+                return mesafe; // Metre cinsinden mesafe
             }
 
-            foreach (var durak in Durak)
+            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
             {
-                double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
-                double mesafeHedef = MesafeHesapla(hedef_lat, hedef_lon, durak.lat, durak.lon);
+                Console.Write(" mevcut enlem (lat): ");
+                double lat_konum = Convert.ToDouble(Console.ReadLine());
 
-                if (mesafe < minMesafe)
+                Console.Write(" mevcut boylam (lon): ");
+                double lon_konum = Convert.ToDouble(Console.ReadLine());
+
+                Console.Write(" hedef enlem (lat): ");
+                double hedef_lat = Convert.ToDouble(Console.ReadLine());
+
+                Console.Write(" hedef boylam (lon): ");
+                double hedef_lon = Convert.ToDouble(Console.ReadLine());
+
+                double minMesafe = double.MaxValue;
+                double minMesafeHedef = double.MaxValue;
+                Arac enYakinDurak = null;
+                Arac hedefEnYakinDurak = null;
+
+                for (int i = 0; i < Durak.Count; i++)
                 {
-                    minMesafe = mesafe;
-                    enYakinDurak = durak;
+                    Console.WriteLine($"Durak {i}: " + Durak[i].name);
                 }
 
-                if (mesafeHedef < minMesafeHedef )
+                foreach (var durak in Durak)
                 {
-                    minMesafeHedef = mesafeHedef;
-                    hedefEnYakinDurak = durak;
+                    double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
+                    double mesafeHedef = MesafeHesapla(hedef_lat, hedef_lon, durak.lat, durak.lon);
+
+                    if (mesafe < minMesafe)
+                    {
+                        minMesafe = mesafe;
+                        enYakinDurak = durak;
+                    }
+
+                    if (mesafeHedef < minMesafeHedef)
+                    {
+                        minMesafeHedef = mesafeHedef;
+                        hedefEnYakinDurak = durak;
+                    }
+                }
+
+
+                if (enYakinDurak != null)
+                {
+                    Console.WriteLine($"En yakýn baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
+                    Console.WriteLine($"En yakýn baslangic duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} metre uzaklýkta.");
+
+                    if (minMesafe > 3000)
+                    {
+                        Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
+                        taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
+                        taksi.UcretHesapla();
+                    }
+
+                    if (minMesafeHedef > 3000)
+                    {
+                        Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
+                        taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
+                        taksi.UcretHesapla();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
                 }
             }
-
-
-            if (enYakinDurak != null)
-            {
-                Console.WriteLine($"En yakýn baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
-                Console.WriteLine($"En yakýn baslangic duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} metre uzaklýkta.");
-
-                if (minMesafe > 3000)
-                {
-                    Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
-                    taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
-                    taksi.UcretHesapla();
-                }
-
-                if (minMesafeHedef > 3000)
-                {
-                    Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
-                    taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
-                    taksi.UcretHesapla();
-                }
-            }
-            else
-            {
-                Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
-            }
-        }
 
             [STAThread]
-        static void Main()
-        {
-            //ApplicationConfiguration.Initialize();
-            // Application.Run(new Form1());
-
-            Taksi taksi = new Taksi();
-
-            json jsonc = new json();
-            
-            ArrayList BusData = new ArrayList();
-            BusData.Add(jsonc.JsonCekme(0));
-            BusData.Add(jsonc.JsonCekme(1));
-            BusData.Add(jsonc.JsonCekme(2));
-            BusData.Add(jsonc.JsonCekme(3));
-            BusData.Add(jsonc.JsonCekme(4));
-            BusData.Add(jsonc.JsonCekme(5));
-
-            ArrayList TramvayData = new ArrayList();
-            TramvayData.Add(jsonc.JsonCekme(6));
-            TramvayData.Add(jsonc.JsonCekme(7));
-            TramvayData.Add(jsonc.JsonCekme(8));
-            TramvayData.Add(jsonc.JsonCekme(9));
-
-            foreach (var elements in BusData)
+            static void Main()
             {
-                Console.WriteLine(elements);
-
-            }
-
-            foreach (var elements in TramvayData)
-            {
-                Console.WriteLine(elements);
-            }
-
-            List<Arac> otobusDuraklari = new List<Arac>();
-
-            Otobus BusOtogar = OtobusSinifOlustur.OtobusOlustur(BusData[0].ToString());
-            otobusDuraklari.Add(BusOtogar);
-            
-            Otobus BusSekapark = OtobusSinifOlustur.OtobusOlustur(BusData[1].ToString());
-            otobusDuraklari.Add(BusSekapark);
-            
-            Otobus BusYahyakaptan = OtobusSinifOlustur.OtobusOlustur(BusData[2].ToString());
-            otobusDuraklari.Add(BusYahyakaptan);
-            
-            Otobus BusUmuttepe = OtobusSinifOlustur.OtobusOlustur(BusData[3].ToString());
-            otobusDuraklari.Add(BusUmuttepe);
-            
-            Otobus BusSymbolavm = OtobusSinifOlustur.OtobusOlustur(BusData[4].ToString());
-            otobusDuraklari.Add(BusSymbolavm);
-            
-            Otobus Bus41Burada = OtobusSinifOlustur.OtobusOlustur(BusData[5].ToString());
-            otobusDuraklari.Add(Bus41Burada);
-
-            List<Arac> tramDuraklari = new List<Arac>();
-
-            Tramvay TramOtogar = TramSinifOlustur.TramvayOlustur(TramvayData[0].ToString());
-            tramDuraklari.Add(TramOtogar);
-            
-            Tramvay TramYahyakaptan = TramSinifOlustur.TramvayOlustur(TramvayData[1].ToString());
-            tramDuraklari.Add(TramYahyakaptan);
-            
-            Tramvay TramSekapark = TramSinifOlustur.TramvayOlustur(TramvayData[2].ToString());
-            tramDuraklari.Add(TramSekapark);
-            
-            Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
-            tramDuraklari.Add(TramHalkevi);
-
-            //EnYakinDuragiBul(otobusDuraklari, taksi);
-
-            // EnYakinDuragiBul(tramDuraklari, taksi); 
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Form1());
 
 
-            foreach (var stop in BusYahyakaptan.NextStops)
-            {
-                Console.WriteLine(stop);
-            }
+                Taksi taksi = new Taksi();
 
-            foreach (var stop in TramSekapark.NextStops)
-            {
-                Console.WriteLine(stop);
+                json jsonc = new json();
+
+                ArrayList BusData = new ArrayList();
+                BusData.Add(jsonc.JsonCekme(0));
+                BusData.Add(jsonc.JsonCekme(1));
+                BusData.Add(jsonc.JsonCekme(2));
+                BusData.Add(jsonc.JsonCekme(3));
+                BusData.Add(jsonc.JsonCekme(4));
+                BusData.Add(jsonc.JsonCekme(5));
+
+                ArrayList TramvayData = new ArrayList();
+                TramvayData.Add(jsonc.JsonCekme(6));
+                TramvayData.Add(jsonc.JsonCekme(7));
+                TramvayData.Add(jsonc.JsonCekme(8));
+                TramvayData.Add(jsonc.JsonCekme(9));
+
+                foreach (var elements in BusData)
+                {
+                    Console.WriteLine(elements);
+
+                }
+
+                foreach (var elements in TramvayData)
+                {
+                    Console.WriteLine(elements);
+                }
+
+                List<Arac> otobusDuraklari = new List<Arac>();
+
+                Otobus BusOtogar = OtobusSinifOlustur.OtobusOlustur(BusData[0].ToString());
+                otobusDuraklari.Add(BusOtogar);
+
+                Otobus BusSekapark = OtobusSinifOlustur.OtobusOlustur(BusData[1].ToString());
+                otobusDuraklari.Add(BusSekapark);
+
+                Otobus BusYahyakaptan = OtobusSinifOlustur.OtobusOlustur(BusData[2].ToString());
+                otobusDuraklari.Add(BusYahyakaptan);
+
+                Otobus BusUmuttepe = OtobusSinifOlustur.OtobusOlustur(BusData[3].ToString());
+                otobusDuraklari.Add(BusUmuttepe);
+
+                Otobus BusSymbolavm = OtobusSinifOlustur.OtobusOlustur(BusData[4].ToString());
+                otobusDuraklari.Add(BusSymbolavm);
+
+                Otobus Bus41Burada = OtobusSinifOlustur.OtobusOlustur(BusData[5].ToString());
+                otobusDuraklari.Add(Bus41Burada);
+
+                List<Arac> tramDuraklari = new List<Arac>();
+
+                Tramvay TramOtogar = TramSinifOlustur.TramvayOlustur(TramvayData[0].ToString());
+                tramDuraklari.Add(TramOtogar);
+
+                Tramvay TramYahyakaptan = TramSinifOlustur.TramvayOlustur(TramvayData[1].ToString());
+                tramDuraklari.Add(TramYahyakaptan);
+
+                Tramvay TramSekapark = TramSinifOlustur.TramvayOlustur(TramvayData[2].ToString());
+                tramDuraklari.Add(TramSekapark);
+
+                Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
+                tramDuraklari.Add(TramHalkevi);
+
+                //EnYakinDuragiBul(otobusDuraklari, taksi);
+                // EnYakinDuragiBul(tramDuraklari, taksi); 
+
+                foreach (var stop in BusSekapark.NextStops)
+                {
+                    Console.WriteLine(stop);
+                }
+
+                foreach (var stop in TramSekapark.NextStops)
+                {
+                    Console.WriteLine(stop);
+                }
             }
         }
     }

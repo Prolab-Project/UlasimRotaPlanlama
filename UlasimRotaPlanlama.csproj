@@ -8,4 +8,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="GMap.NET.Core" Version="1.7.5" />
+    <PackageReference Include="GMap.NET.WindowsForms" Version="1.7.5" />
+  </ItemGroup>
+
 </Project>
