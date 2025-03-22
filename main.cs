@@ -14,7 +14,6 @@ using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
 
-
 public static class jsonreader
 {
     public static string JsonReader(string filePath)
@@ -141,6 +140,48 @@ namespace HaritaUygulamasi
 
             // Harita kontrolünü forma ekle
             this.Controls.Add(gMapControl);
+        
+                    this.Load += new System.EventHandler(this.Form1_Load);
+
+            this.ResumeLayout(false);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Harita üzerinde marker ekliyoruz
+            AddMarkerAtLocation(40.76520, 29.96190, " bus_sekapark ");
+
+            // Baþka bir marker ekleyelim
+            AddMarkerAtLocation(40.82103, 29.91843, " bus_umuttepe ");
+        }
+
+        private void AddMarkerAtLocation(double lat, double lon, string description)
+        {
+            // GMap üzerinde marker oluþturuyoruz
+            GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
+            marker.ToolTipText = description;
+
+            // Marker'ý eklemek için GMapOverlay kullanýyoruz
+            GMapOverlay markers = new GMapOverlay("markers");
+            markers.Markers.Add(marker);
+            gMapControl.Overlays.Add(markers);
+
+            // Marker týklama olayýný iþlemek için
+            gMapControl.MouseClick += (sender, e) =>
+            {
+                // Mouse týklama olayý kontrolü
+                if (e.Button == MouseButtons.Left)
+                {
+                    // Týklanan yerin koordinatlarýný kontrol ediyoruz
+                    GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
+
+                    // Eðer týklanan koordinat, marker'ýn koordinatýna yakýnsa
+                    if (clickPos.Lat == lat && clickPos.Lng == lon)
+                    {
+                        MessageBox.Show("Týklanan yerin açýklamasý: " + description);
+                    }
+                }
+            };
         }
 
         internal static class main
@@ -302,7 +343,7 @@ namespace HaritaUygulamasi
                 tramDuraklari.Add(TramHalkevi);
 
                 //EnYakinDuragiBul(otobusDuraklari, taksi);
-                // EnYakinDuragiBul(tramDuraklari, taksi); 
+                //EnYakinDuragiBul(tramDuraklari, taksi); 
 
                 foreach (var stop in BusSekapark.NextStops)
                 {
@@ -316,4 +357,96 @@ namespace HaritaUygulamasi
             }
         }
     }
+}/*
+using System;
+using System.Windows.Forms;
+using GMap.NET;
+using GMap.NET.WindowsForms;
+using GMap.NET.MapProviders;
+using GMap.NET.WindowsForms.Markers;
+
+namespace HaritaUygulamasi
+{
+    public partial class Form1 : Form
+    {
+        private GMapControl gMapControl;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            this.gMapControl = new GMapControl();
+            this.SuspendLayout();
+
+            // gMapControl özelliklerini ayarlýyoruz
+            this.gMapControl.Dock = DockStyle.Fill;
+            this.gMapControl.MapProvider = GoogleMapProvider.Instance;  // Google haritasý kullanýyoruz
+            GMaps.Instance.Mode = AccessMode.ServerOnly;  // Yalnýzca sunucu üzerinden harita verisi alýnacak
+            this.Controls.Add(this.gMapControl);
+
+            // Harita baþlangýç ayarlarý
+            gMapControl.Position = new GMap.NET.PointLatLng(40.730610, -73.935242);  // Baþlangýç konumu (New York)
+            gMapControl.MinZoom = 0;   // Minimum zoom seviyesi
+            gMapControl.MaxZoom = 20;  // Maksimum zoom seviyesi
+
+
+            // Form1 özelliklerini ayarlýyoruz
+            this.ClientSize = new System.Drawing.Size(800, 600);  // Form boyutunu belirliyoruz
+            this.Name = "Form1";
+            this.Text = "Harita Uygulamasý";
+            this.Load += new System.EventHandler(this.Form1_Load);
+
+            this.ResumeLayout(false);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Harita üzerinde marker ekliyoruz
+            AddMarkerAtLocation(40.730610, -73.935242, "Burada bir buton ekliyoruz!");
+
+            // Baþka bir marker ekleyelim
+            AddMarkerAtLocation(40.740610, -73.935242, "Baþka bir konum");
+        }
+
+        private void AddMarkerAtLocation(double lat, double lon, string description)
+        {
+            // GMap üzerinde marker oluþturuyoruz
+            GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
+            marker.ToolTipText = description;
+
+            // Marker'ý eklemek için GMapOverlay kullanýyoruz
+            GMapOverlay markers = new GMapOverlay("markers");
+            markers.Markers.Add(marker);
+            gMapControl.Overlays.Add(markers);
+
+            // Marker týklama olayýný iþlemek için
+            gMapControl.MouseClick += (sender, e) =>
+            {
+                // Mouse týklama olayý kontrolü
+                if (e.Button == MouseButtons.Left)
+                {
+                    // Týklanan yerin koordinatlarýný kontrol ediyoruz
+                    GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
+
+                    // Eðer týklanan koordinat, marker'ýn koordinatýna yakýnsa
+                    if (clickPos.Lat == lat && clickPos.Lng == lon)
+                    {
+                        MessageBox.Show("Týklanan yerin açýklamasý: " + description);
+                    }
+                }
+            };
+        }
+
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+    }
 }
+*/
