@@ -31,8 +31,24 @@ public class json
         sondurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("sonDurak").GetBoolean();
         type = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("type").GetString();
         name = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("name").GetString();
+       
+        List<string> nextStopsList = new List<string>();
+        if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("nextStops", out JsonElement nextStops))
+        {
+            foreach (JsonElement stop in nextStops.EnumerateArray())
+            {
+                string stopId = stop.GetProperty("stopId").GetString();
+                double mesafe = stop.GetProperty("mesafe").GetDouble();
+                int sure = stop.GetProperty("sure").GetInt32();
+                double ucret = stop.GetProperty("ucret").GetDouble();
 
-        string data = $"{lat} / {lon} / {id} / {sondurak} / {type} / {name}";
+                nextStopsList.Add($"{stopId}({mesafe}km, {sure}dk, {ucret}TL)");
+            }
+        }
+
+        string nextStopsData = nextStopsList.Count > 0 ? string.Join(", ", nextStopsList) : "None";
+
+        string data = $"{lat} / {lon} / {id} / {sondurak} / {type} / {name} / {nextStopsData}";
 
         return data;
     }
@@ -188,6 +204,7 @@ namespace UlasimRotaPlanlama
             foreach (var elements in BusData)
             {
                 Console.WriteLine(elements);
+
             }
 
             foreach (var elements in TramvayData)
@@ -231,7 +248,8 @@ namespace UlasimRotaPlanlama
 
             //EnYakinDuragiBul(otobusDuraklari, taksi);
 
-            EnYakinDuragiBul(tramDuraklari, taksi); 
+           // EnYakinDuragiBul(tramDuraklari, taksi); 
+
         }
     }
 }
