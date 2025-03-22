@@ -117,28 +117,28 @@ namespace HaritaUygulamasi
     public class Form1 : Form
     {
         private GMapControl gMapControl;
+        private List<Arac> aracListesi;
 
-        public Form1()
+
+        public Form1(List<Arac> arac)
         {
-            // Form baþlatma
+            this.aracListesi = arac;
             this.Text = "Harita Uygulamasý";
             this.Width = 800;
             this.Height = 600;
 
-            // GMapControl oluþtur
             gMapControl = new GMapControl();
             gMapControl.Dock = DockStyle.Fill;
 
             // Harita ayarlarý
             gMapControl.MapProvider = GMapProviders.GoogleMap;
             GMaps.Instance.Mode = AccessMode.ServerOnly;
-            gMapControl.Position = new PointLatLng(40.7696, 29.9405); // Kocaeli
+            gMapControl.Position = new PointLatLng(40.7696, 29.9405); 
             gMapControl.MinZoom = 5;
             gMapControl.MaxZoom = 100;
             gMapControl.Zoom = 12;
             gMapControl.ShowCenter = false;
 
-            // Harita kontrolünü forma ekle
             this.Controls.Add(gMapControl);
         
                     this.Load += new System.EventHandler(this.Form1_Load);
@@ -146,36 +146,30 @@ namespace HaritaUygulamasi
             this.ResumeLayout(false);
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e )
         {
-            // Harita üzerinde marker ekliyoruz
-            AddMarkerAtLocation(40.76520, 29.96190, " bus_sekapark ");
+            foreach (var arac in aracListesi)
+            {
+                AddMarkerAtLocation(arac.lat, arac.lon, arac.name);
+            }
 
-            // Baþka bir marker ekleyelim
-            AddMarkerAtLocation(40.82103, 29.91843, " bus_umuttepe ");
         }
 
         private void AddMarkerAtLocation(double lat, double lon, string description)
         {
-            // GMap üzerinde marker oluþturuyoruz
             GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
             marker.ToolTipText = description;
 
-            // Marker'ý eklemek için GMapOverlay kullanýyoruz
             GMapOverlay markers = new GMapOverlay("markers");
             markers.Markers.Add(marker);
             gMapControl.Overlays.Add(markers);
 
-            // Marker týklama olayýný iþlemek için
             gMapControl.MouseClick += (sender, e) =>
             {
-                // Mouse týklama olayý kontrolü
                 if (e.Button == MouseButtons.Left)
                 {
-                    // Týklanan yerin koordinatlarýný kontrol ediyoruz
                     GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
 
-                    // Eðer týklanan koordinat, marker'ýn koordinatýna yakýnsa
                     if (clickPos.Lat == lat && clickPos.Lng == lon)
                     {
                         MessageBox.Show("Týklanan yerin açýklamasý: " + description);
@@ -274,10 +268,7 @@ namespace HaritaUygulamasi
             [STAThread]
             static void Main()
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1());
-
+                
 
                 Taksi taksi = new Taksi();
 
@@ -308,42 +299,58 @@ namespace HaritaUygulamasi
                     Console.WriteLine(elements);
                 }
 
+                List<Arac> aracDuraklari = new List<Arac>();
                 List<Arac> otobusDuraklari = new List<Arac>();
 
                 Otobus BusOtogar = OtobusSinifOlustur.OtobusOlustur(BusData[0].ToString());
                 otobusDuraklari.Add(BusOtogar);
+                aracDuraklari.Add(BusOtogar);
 
                 Otobus BusSekapark = OtobusSinifOlustur.OtobusOlustur(BusData[1].ToString());
                 otobusDuraklari.Add(BusSekapark);
+                aracDuraklari.Add(BusSekapark);
 
                 Otobus BusYahyakaptan = OtobusSinifOlustur.OtobusOlustur(BusData[2].ToString());
                 otobusDuraklari.Add(BusYahyakaptan);
+                aracDuraklari.Add(BusYahyakaptan);
 
                 Otobus BusUmuttepe = OtobusSinifOlustur.OtobusOlustur(BusData[3].ToString());
                 otobusDuraklari.Add(BusUmuttepe);
+                aracDuraklari.Add(BusUmuttepe);
 
                 Otobus BusSymbolavm = OtobusSinifOlustur.OtobusOlustur(BusData[4].ToString());
                 otobusDuraklari.Add(BusSymbolavm);
+                aracDuraklari.Add(BusSymbolavm);
 
                 Otobus Bus41Burada = OtobusSinifOlustur.OtobusOlustur(BusData[5].ToString());
                 otobusDuraklari.Add(Bus41Burada);
+                aracDuraklari.Add(Bus41Burada);
 
                 List<Arac> tramDuraklari = new List<Arac>();
 
                 Tramvay TramOtogar = TramSinifOlustur.TramvayOlustur(TramvayData[0].ToString());
                 tramDuraklari.Add(TramOtogar);
+                aracDuraklari.Add(TramOtogar);
 
                 Tramvay TramYahyakaptan = TramSinifOlustur.TramvayOlustur(TramvayData[1].ToString());
                 tramDuraklari.Add(TramYahyakaptan);
+                aracDuraklari.Add(TramYahyakaptan);
 
                 Tramvay TramSekapark = TramSinifOlustur.TramvayOlustur(TramvayData[2].ToString());
                 tramDuraklari.Add(TramSekapark);
+                aracDuraklari.Add(TramSekapark);
 
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
+                aracDuraklari.Add(TramHalkevi);
 
                 //EnYakinDuragiBul(otobusDuraklari, taksi);
-                //EnYakinDuragiBul(tramDuraklari, taksi); 
+                //EnYakinDuragiBul(tramDuraklari, taksi);
+
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Form1(aracDuraklari));
+
 
                 foreach (var stop in BusSekapark.NextStops)
                 {
