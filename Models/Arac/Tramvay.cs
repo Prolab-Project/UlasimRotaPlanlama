@@ -8,6 +8,9 @@ namespace UlasimRotaPlanlama.Models.Arac
 {
     public class Tramvay : Arac 
     {
+
+        public List<string> NextStops { get; set; } // Sadece tram icin
+
         public Tramvay()
         {
             id = "0";
@@ -16,6 +19,7 @@ namespace UlasimRotaPlanlama.Models.Arac
             lat = 0.0;
             lon = 0.0;
             sonDurak = false;
+            NextStops = new List<string>();
 
         }
         public Tramvay(string id, string name, string type, double lat, double lon, bool sonDurak)
@@ -26,6 +30,8 @@ namespace UlasimRotaPlanlama.Models.Arac
             this.lat = lat;
             this.lon = lon;
             this.sonDurak = sonDurak;
+            this.NextStops = NextStops ?? new List<string>();
+
         }
 
     }
