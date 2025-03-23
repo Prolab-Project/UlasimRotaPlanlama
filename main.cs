@@ -299,54 +299,46 @@ namespace HaritaUygulamasi
                     Console.WriteLine(elements);
                 }
 
-                List<Arac> aracDuraklari = new List<Arac>();
                 List<Arac> otobusDuraklari = new List<Arac>();
 
                 Otobus BusOtogar = OtobusSinifOlustur.OtobusOlustur(BusData[0].ToString());
                 otobusDuraklari.Add(BusOtogar);
-                aracDuraklari.Add(BusOtogar);
 
                 Otobus BusSekapark = OtobusSinifOlustur.OtobusOlustur(BusData[1].ToString());
                 otobusDuraklari.Add(BusSekapark);
-                aracDuraklari.Add(BusSekapark);
 
                 Otobus BusYahyakaptan = OtobusSinifOlustur.OtobusOlustur(BusData[2].ToString());
                 otobusDuraklari.Add(BusYahyakaptan);
-                aracDuraklari.Add(BusYahyakaptan);
 
                 Otobus BusUmuttepe = OtobusSinifOlustur.OtobusOlustur(BusData[3].ToString());
                 otobusDuraklari.Add(BusUmuttepe);
-                aracDuraklari.Add(BusUmuttepe);
 
                 Otobus BusSymbolavm = OtobusSinifOlustur.OtobusOlustur(BusData[4].ToString());
                 otobusDuraklari.Add(BusSymbolavm);
-                aracDuraklari.Add(BusSymbolavm);
 
                 Otobus Bus41Burada = OtobusSinifOlustur.OtobusOlustur(BusData[5].ToString());
                 otobusDuraklari.Add(Bus41Burada);
-                aracDuraklari.Add(Bus41Burada);
 
                 List<Arac> tramDuraklari = new List<Arac>();
 
                 Tramvay TramOtogar = TramSinifOlustur.TramvayOlustur(TramvayData[0].ToString());
                 tramDuraklari.Add(TramOtogar);
-                aracDuraklari.Add(TramOtogar);
 
                 Tramvay TramYahyakaptan = TramSinifOlustur.TramvayOlustur(TramvayData[1].ToString());
                 tramDuraklari.Add(TramYahyakaptan);
-                aracDuraklari.Add(TramYahyakaptan);
 
                 Tramvay TramSekapark = TramSinifOlustur.TramvayOlustur(TramvayData[2].ToString());
                 tramDuraklari.Add(TramSekapark);
-                aracDuraklari.Add(TramSekapark);
 
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
-                aracDuraklari.Add(TramHalkevi);
 
                 //EnYakinDuragiBul(otobusDuraklari, taksi);
                 //EnYakinDuragiBul(tramDuraklari, taksi);
 
+                List<Arac> aracDuraklari = new List<Arac>();
+                aracDuraklari.AddRange(otobusDuraklari);
+                aracDuraklari.AddRange(tramDuraklari);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new Form1(aracDuraklari));
