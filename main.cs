@@ -119,7 +119,6 @@ namespace HaritaUygulamasi
         private GMapControl gMapControl;
         private List<Arac> aracListesi;
 
-
         public Form1(List<Arac> arac)
         {
             this.aracListesi = arac;
@@ -130,7 +129,6 @@ namespace HaritaUygulamasi
             gMapControl = new GMapControl();
             gMapControl.Dock = DockStyle.Fill;
 
-            // Harita ayarlarý
             gMapControl.MapProvider = GMapProviders.GoogleMap;
             GMaps.Instance.Mode = AccessMode.ServerOnly;
             gMapControl.Position = new PointLatLng(40.7696, 29.9405); 
@@ -152,7 +150,6 @@ namespace HaritaUygulamasi
             {
                 AddMarkerAtLocation(arac.lat, arac.lon, arac.name);
             }
-
         }
 
         private void AddMarkerAtLocation(double lat, double lon, string description)
@@ -177,10 +174,8 @@ namespace HaritaUygulamasi
                 }
             };
         }
-
-        internal static class main
+        public static class mesafeHesapla
         {
-
             public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
             {
                 double derece_lat = Math.Abs(lat - durak_lat);
@@ -194,9 +189,12 @@ namespace HaritaUygulamasi
 
                 double mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
 
-                return mesafe; // Metre cinsinden mesafe
+                return mesafe/1000; // km cinsinden mesafe
             }
+        }
 
+        public static class yakinDurakBul
+        {
             public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
             {
                 Console.Write(" mevcut enlem (lat): ");
@@ -223,8 +221,8 @@ namespace HaritaUygulamasi
 
                 foreach (var durak in Durak)
                 {
-                    double mesafe = MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
-                    double mesafeHedef = MesafeHesapla(hedef_lat, hedef_lon, durak.lat, durak.lon);
+                    double mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
+                    double mesafeHedef = mesafeHesapla.MesafeHesapla(hedef_lat, hedef_lon, durak.lat, durak.lon);
 
                     if (mesafe < minMesafe)
                     {
@@ -239,20 +237,19 @@ namespace HaritaUygulamasi
                     }
                 }
 
-
                 if (enYakinDurak != null)
                 {
-                    Console.WriteLine($"En yakýn baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} metre uzaklýkta.");
-                    Console.WriteLine($"En yakýn baslangic duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} metre uzaklýkta.");
+                    Console.WriteLine($"En yakýn baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklýkta.");
+                    Console.WriteLine($"En yakýn hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklýkta.");
 
-                    if (minMesafe > 3000)
+                    if (minMesafe > 3)
                     {
                         Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
                         taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
                         taksi.UcretHesapla();
                     }
 
-                    if (minMesafeHedef > 3000)
+                    if (minMesafeHedef > 3)
                     {
                         Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
                         taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
@@ -264,14 +261,14 @@ namespace HaritaUygulamasi
                     Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
                 }
             }
+        }
 
+        internal static class main
+        {
             [STAThread]
             static void Main()
             {
-                
-
                 Taksi taksi = new Taksi();
-
                 json jsonc = new json();
 
                 ArrayList BusData = new ArrayList();
@@ -291,7 +288,6 @@ namespace HaritaUygulamasi
                 foreach (var elements in BusData)
                 {
                     Console.WriteLine(elements);
-
                 }
 
                 foreach (var elements in TramvayData)
@@ -333,12 +329,13 @@ namespace HaritaUygulamasi
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
 
-                //EnYakinDuragiBul(otobusDuraklari, taksi);
-                //EnYakinDuragiBul(tramDuraklari, taksi);
+                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi);
+                //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
 
                 List<Arac> aracDuraklari = new List<Arac>();
                 aracDuraklari.AddRange(otobusDuraklari);
                 aracDuraklari.AddRange(tramDuraklari);
+
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new Form1(aracDuraklari));

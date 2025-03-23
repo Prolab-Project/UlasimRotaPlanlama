@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Text.Json; 
 namespace UlasimRotaPlanlama.Models.Arac
 {
-    internal class Taksi : Arac, Durak
+    public class Taksi : Arac, Durak
     {
         
         public double openingFee;
@@ -48,11 +48,11 @@ namespace UlasimRotaPlanlama.Models.Arac
             double pisagor_lon = metre_lon * metre_lon;
 
             mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
-
+            mesafe = mesafe / 1000;
             Console.WriteLine("mesafe hesaplanıyor:");
             Console.WriteLine(mesafe);
         
-            if(mesafe / 1000 > 3)
+            if(mesafe > 3)
             {
                 taksi_bin = true;
             }
@@ -66,8 +66,8 @@ namespace UlasimRotaPlanlama.Models.Arac
         {
             if(taksi_bin == true)
             {
-                Console.WriteLine(costPerKm);
-                toplamucret = costPerKm * (mesafe / 1000);
+                //Console.WriteLine(costPerKm);
+                toplamucret = costPerKm * (mesafe );
                 Console.WriteLine(toplamucret);
             }
         }
