@@ -50,7 +50,7 @@ public class json
         if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("nextStops", out JsonElement nextStops))
         {
             foreach (JsonElement stop in nextStops.EnumerateArray())
-            {
+            {   
                 string stopId = stop.GetProperty("stopId").GetString();
                 double mesafe = stop.GetProperty("mesafe").GetDouble();
                 int sure = stop.GetProperty("sure").GetInt32();
@@ -79,11 +79,26 @@ public class OtobusSinifOlustur
         bool sonDurak = Convert.ToBoolean(value[3]);
         string type = value[4];
         string name = value[5];
-        List<string> nextStops = new List<string>();
 
+        List<NextStop> nextStops = new List<NextStop>();
+
+        // Eðer nextStops bilgisi varsa al
         if (value.Length > 6)
         {
-            nextStops = value[6].Split(", ").ToList();
+            string[] nextStopsRaw = value[6].Split(", ");
+            foreach (string stopData in nextStopsRaw)
+            {
+                if (string.IsNullOrWhiteSpace(stopData) || stopData == "None") continue;
+
+                string stopId = stopData.Split('(')[0]; // Stop ID
+                string[] stopDetails = stopData.Split('(')[1].TrimEnd(')').Split(',');
+
+                double mesafe = Convert.ToDouble(stopDetails[0].Replace("km", "").Trim());
+                int sure = Convert.ToInt32(stopDetails[1].Replace("dk", "").Trim());
+                double ucret = Convert.ToDouble(stopDetails[2].Replace("TL", "").Trim());
+
+                nextStops.Add(new NextStop(stopId, mesafe, sure, ucret));
+            }
         }
 
         return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak, NextStops = nextStops };
@@ -350,6 +365,34 @@ namespace HaritaUygulamasi
                 {
                     Console.WriteLine(stop);
                 }
+
+
+                Graph graph = new Graph();
+
+                // Tüm duraklarý düðüm olarak ekle
+                foreach (var durak in otobusDuraklari)
+                {
+                    graph.AddNode(durak.id);
+                }
+
+                foreach (var durak in tramDuraklari)
+                {
+                    graph.AddNode(durak.id);
+                }
+
+                // Duraklar arasýndaki baðlantýlarý ekle
+                foreach (var durak in otobusDuraklari)
+                {
+                    foreach (var nextStop in durak.NextStops)
+                    {
+                        graph.AddEdge(durak.id, nextStop.StopId, nextStop.Sure); // next.id yerine nextStop.StopId kullanýldý
+                    }
+                }
+
+
+
+
+
             }
         }
     }

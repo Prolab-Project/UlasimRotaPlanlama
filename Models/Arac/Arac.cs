@@ -14,7 +14,8 @@ namespace UlasimRotaPlanlama.Models.Arac
         public double lat;
         public double lon;
         public bool sonDurak;
-        
+        public List<NextStop> NextStops { get; set; } 
+
 
         /*public abstract double UcretHesapla(double mevcut_lat , double mevcut_lon , double hedef_lat, double hedef_lon);
         public static double Haversine(double mevcut_lat, double mevcut_lon, double hedef_lat, double hedef_lon)
