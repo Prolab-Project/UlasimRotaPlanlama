@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Arac
 {
-    public class Tramvay : Arac 
+    public class Tramvay : Arac
     {
 
         public List<string> NextStops { get; set; } // Sadece tram icin

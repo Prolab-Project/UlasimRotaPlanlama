@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.IO;
 using Microsoft.VisualBasic.Logging;
 using System.Text.Json;
@@ -8,7 +8,7 @@ using System.Collections;
 using System.Xml.Linq;
 using UlasimRotaPlanlama.Models.Yolcu;
 using UlasimRotaPlanlama.Models;
-using GMap.NET; 
+using GMap.NET;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
@@ -45,12 +45,12 @@ public class json
         sondurak = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("sonDurak").GetBoolean();
         type = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("type").GetString();
         name = root.GetProperty("duraklar").EnumerateArray().ElementAt(x).GetProperty("name").GetString();
-       
+
         List<string> nextStopsList = new List<string>();
         if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("nextStops", out JsonElement nextStops))
         {
             foreach (JsonElement stop in nextStops.EnumerateArray())
-            {   
+            {
                 string stopId = stop.GetProperty("stopId").GetString();
                 double mesafe = stop.GetProperty("mesafe").GetDouble();
                 int sure = stop.GetProperty("sure").GetInt32();
@@ -79,26 +79,11 @@ public class OtobusSinifOlustur
         bool sonDurak = Convert.ToBoolean(value[3]);
         string type = value[4];
         string name = value[5];
+        List<string> nextStops = new List<string>();
 
-        List<NextStop> nextStops = new List<NextStop>();
-
-        // Eðer nextStops bilgisi varsa al
         if (value.Length > 6)
         {
-            string[] nextStopsRaw = value[6].Split(", ");
-            foreach (string stopData in nextStopsRaw)
-            {
-                if (string.IsNullOrWhiteSpace(stopData) || stopData == "None") continue;
-
-                string stopId = stopData.Split('(')[0]; // Stop ID
-                string[] stopDetails = stopData.Split('(')[1].TrimEnd(')').Split(',');
-
-                double mesafe = Convert.ToDouble(stopDetails[0].Replace("km", "").Trim());
-                int sure = Convert.ToInt32(stopDetails[1].Replace("dk", "").Trim());
-                double ucret = Convert.ToDouble(stopDetails[2].Replace("TL", "").Trim());
-
-                nextStops.Add(new NextStop(stopId, mesafe, sure, ucret));
-            }
+            nextStops = value[6].Split(", ").ToList();
         }
 
         return new Otobus { id = id, name = name, type = type, lat = lat, lon = lon, sonDurak = sonDurak, NextStops = nextStops };
@@ -137,7 +122,7 @@ namespace HaritaUygulamasi
         public Form1(List<Arac> arac)
         {
             this.aracListesi = arac;
-            this.Text = "Harita Uygulamasý";
+            this.Text = "Harita Uygulamasï¿½";
             this.Width = 800;
             this.Height = 600;
 
@@ -146,20 +131,20 @@ namespace HaritaUygulamasi
 
             gMapControl.MapProvider = GMapProviders.GoogleMap;
             GMaps.Instance.Mode = AccessMode.ServerOnly;
-            gMapControl.Position = new PointLatLng(40.7696, 29.9405); 
+            gMapControl.Position = new PointLatLng(40.7696, 29.9405);
             gMapControl.MinZoom = 5;
             gMapControl.MaxZoom = 100;
             gMapControl.Zoom = 12;
             gMapControl.ShowCenter = false;
 
             this.Controls.Add(gMapControl);
-        
-                    this.Load += new System.EventHandler(this.Form1_Load);
+
+            this.Load += new System.EventHandler(this.Form1_Load);
 
             this.ResumeLayout(false);
         }
 
-        private void Form1_Load(object sender, EventArgs e )
+        private void Form1_Load(object sender, EventArgs e)
         {
             foreach (var arac in aracListesi)
             {
@@ -184,7 +169,7 @@ namespace HaritaUygulamasi
 
                     if (clickPos.Lat == lat && clickPos.Lng == lon)
                     {
-                        MessageBox.Show("Týklanan yerin açýklamasý: " + description);
+                        MessageBox.Show("Tï¿½klanan yerin aï¿½ï¿½klamasï¿½: " + description);
                     }
                 }
             };
@@ -204,7 +189,7 @@ namespace HaritaUygulamasi
 
                 double mesafe = Math.Sqrt(pisagor_lon + pisagor_lat);
 
-                return mesafe/1000; // km cinsinden mesafe
+                return mesafe / 1000; // km cinsinden mesafe
             }
         }
 
@@ -254,26 +239,26 @@ namespace HaritaUygulamasi
 
                 if (enYakinDurak != null)
                 {
-                    Console.WriteLine($"En yakýn baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklýkta.");
-                    Console.WriteLine($"En yakýn hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklýkta.");
+                    Console.WriteLine($"En yakï¿½n baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklï¿½kta.");
+                    Console.WriteLine($"En yakï¿½n hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklï¿½kta.");
 
                     if (minMesafe > 3)
                     {
-                        Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
+                        Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanmanï¿½z ï¿½nerilir.");
                         taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
                         taksi.UcretHesapla();
                     }
 
                     if (minMesafeHedef > 3)
                     {
-                        Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanmanýz önerilir.");
+                        Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanmanï¿½z ï¿½nerilir.");
                         taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
                         taksi.UcretHesapla();
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Yakýnlarda otobüs duraðý bulunamadý.");
+                    Console.WriteLine("Yakï¿½nlarda otobï¿½s duraï¿½ï¿½ bulunamadï¿½.");
                 }
             }
         }
@@ -365,34 +350,6 @@ namespace HaritaUygulamasi
                 {
                     Console.WriteLine(stop);
                 }
-
-
-                Graph graph = new Graph();
-
-                // Tüm duraklarý düðüm olarak ekle
-                foreach (var durak in otobusDuraklari)
-                {
-                    graph.AddNode(durak.id);
-                }
-
-                foreach (var durak in tramDuraklari)
-                {
-                    graph.AddNode(durak.id);
-                }
-
-                // Duraklar arasýndaki baðlantýlarý ekle
-                foreach (var durak in otobusDuraklari)
-                {
-                    foreach (var nextStop in durak.NextStops)
-                    {
-                        graph.AddEdge(durak.id, nextStop.StopId, nextStop.Sure); // next.id yerine nextStop.StopId kullanýldý
-                    }
-                }
-
-
-
-
-
             }
         }
     }
@@ -420,22 +377,22 @@ namespace HaritaUygulamasi
             this.gMapControl = new GMapControl();
             this.SuspendLayout();
 
-            // gMapControl özelliklerini ayarlýyoruz
+            // gMapControl ï¿½zelliklerini ayarlï¿½yoruz
             this.gMapControl.Dock = DockStyle.Fill;
-            this.gMapControl.MapProvider = GoogleMapProvider.Instance;  // Google haritasý kullanýyoruz
-            GMaps.Instance.Mode = AccessMode.ServerOnly;  // Yalnýzca sunucu üzerinden harita verisi alýnacak
+            this.gMapControl.MapProvider = GoogleMapProvider.Instance;  // Google haritasï¿½ kullanï¿½yoruz
+            GMaps.Instance.Mode = AccessMode.ServerOnly;  // Yalnï¿½zca sunucu ï¿½zerinden harita verisi alï¿½nacak
             this.Controls.Add(this.gMapControl);
 
-            // Harita baþlangýç ayarlarý
-            gMapControl.Position = new GMap.NET.PointLatLng(40.730610, -73.935242);  // Baþlangýç konumu (New York)
+            // Harita baï¿½langï¿½ï¿½ ayarlarï¿½
+            gMapControl.Position = new GMap.NET.PointLatLng(40.730610, -73.935242);  // Baï¿½langï¿½ï¿½ konumu (New York)
             gMapControl.MinZoom = 0;   // Minimum zoom seviyesi
             gMapControl.MaxZoom = 20;  // Maksimum zoom seviyesi
 
 
-            // Form1 özelliklerini ayarlýyoruz
+            // Form1 ï¿½zelliklerini ayarlï¿½yoruz
             this.ClientSize = new System.Drawing.Size(800, 600);  // Form boyutunu belirliyoruz
             this.Name = "Form1";
-            this.Text = "Harita Uygulamasý";
+            this.Text = "Harita Uygulamasï¿½";
             this.Load += new System.EventHandler(this.Form1_Load);
 
             this.ResumeLayout(false);
@@ -443,37 +400,37 @@ namespace HaritaUygulamasi
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Harita üzerinde marker ekliyoruz
+            // Harita ï¿½zerinde marker ekliyoruz
             AddMarkerAtLocation(40.730610, -73.935242, "Burada bir buton ekliyoruz!");
 
-            // Baþka bir marker ekleyelim
-            AddMarkerAtLocation(40.740610, -73.935242, "Baþka bir konum");
+            // Baï¿½ka bir marker ekleyelim
+            AddMarkerAtLocation(40.740610, -73.935242, "Baï¿½ka bir konum");
         }
 
         private void AddMarkerAtLocation(double lat, double lon, string description)
         {
-            // GMap üzerinde marker oluþturuyoruz
+            // GMap ï¿½zerinde marker oluï¿½turuyoruz
             GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
             marker.ToolTipText = description;
 
-            // Marker'ý eklemek için GMapOverlay kullanýyoruz
+            // Marker'ï¿½ eklemek iï¿½in GMapOverlay kullanï¿½yoruz
             GMapOverlay markers = new GMapOverlay("markers");
             markers.Markers.Add(marker);
             gMapControl.Overlays.Add(markers);
 
-            // Marker týklama olayýný iþlemek için
+            // Marker tï¿½klama olayï¿½nï¿½ iï¿½lemek iï¿½in
             gMapControl.MouseClick += (sender, e) =>
             {
-                // Mouse týklama olayý kontrolü
+                // Mouse tï¿½klama olayï¿½ kontrolï¿½
                 if (e.Button == MouseButtons.Left)
                 {
-                    // Týklanan yerin koordinatlarýný kontrol ediyoruz
+                    // Tï¿½klanan yerin koordinatlarï¿½nï¿½ kontrol ediyoruz
                     GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
 
-                    // Eðer týklanan koordinat, marker'ýn koordinatýna yakýnsa
+                    // Eï¿½er tï¿½klanan koordinat, marker'ï¿½n koordinatï¿½na yakï¿½nsa
                     if (clickPos.Lat == lat && clickPos.Lng == lon)
                     {
-                        MessageBox.Show("Týklanan yerin açýklamasý: " + description);
+                        MessageBox.Show("Tï¿½klanan yerin aï¿½ï¿½klamasï¿½: " + description);
                     }
                 }
             };
