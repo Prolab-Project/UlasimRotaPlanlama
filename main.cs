@@ -350,6 +350,32 @@ namespace HaritaUygulamasi
                 {
                     Console.WriteLine(stop);
                 }
+
+
+                Graph graph = new Graph();
+
+                foreach (var durak in otobusDuraklari)
+                {
+                    graph.AddNode(durak.id);
+                }
+
+                foreach (var durak in tramDuraklari)
+                {
+                    graph.AddNode(durak.id);
+                }
+
+                graph.PrintGraph();
+
+
+                // ÇÖZÜLMESİ GEREKEN KISIM : 
+
+                /*  foreach (var durak in otobusDuraklari)
+                  {
+                      foreach (var nextStop in durak.NextStops)
+                      {
+                          graph.AddEdge(durak.id, nextStop.StopId, nextStop.Sure); 
+                      }
+                  }*/
             }
         }
     }

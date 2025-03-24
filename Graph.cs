@@ -62,7 +62,17 @@ public class Graph
 
         return ReconstructPath(previous, start, goal);
     }
-
+    public void PrintGraph()
+    {
+        foreach (var node in AdjacencyList)
+        {
+            Console.WriteLine($"Node {node.Key}:");
+            foreach (var neighbor in node.Value)
+            {
+                Console.WriteLine($"  -> {neighbor}");
+            }
+        }
+    }
     private List<string> ReconstructPath(Dictionary<string, string> previous, string start, string goal)
     {
         var path = new List<string>();
