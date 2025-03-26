@@ -197,7 +197,7 @@ namespace HaritaUygulamasi
 
         public static class yakinDurakBul
         {
-            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
+            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi, Graph graph)
             {
                 Console.Write(" mevcut enlem (lat): ");
                 double lat_konum = Convert.ToDouble(Console.ReadLine());
@@ -261,6 +261,21 @@ namespace HaritaUygulamasi
                 else
                 {
                     Console.WriteLine("Yak�nlarda otob�s dura�� bulunamad�.");
+                }
+
+                var shortest_path = graph.Dijkstra(graph,enYakinDurak.id, hedefEnYakinDurak.id); 
+
+                if (shortest_path.Count > 0 ) 
+                    {
+                    Console.WriteLine("En kisa rota : ");
+                    Console.WriteLine(string.Join(" -> ", shortest_path));
+
+
+
+                }
+                else
+                {
+                    Console.WriteLine(" yol bulunamadi "); 
                 }
             }
         }
@@ -333,8 +348,7 @@ namespace HaritaUygulamasi
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
 
-                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi);
-                //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
+                
 
                 List<Arac> aracDuraklari = new List<Arac>();
                 aracDuraklari.AddRange(otobusDuraklari);
@@ -358,10 +372,10 @@ namespace HaritaUygulamasi
 
                 Graph graph = new Graph();
 
-                foreach (var durak in otobusDuraklari)
+             foreach (var durak in otobusDuraklari)
                 {
                     graph.AddNode(durak.id);
-                }
+                }   
 
                 foreach (var durak in tramDuraklari)
                 {
@@ -423,6 +437,9 @@ namespace HaritaUygulamasi
                 }
                 graph.PrintGraph();
 
+
+                yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
+                //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
             }
         }
     }

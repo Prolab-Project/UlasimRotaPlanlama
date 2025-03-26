@@ -31,18 +31,29 @@ public class Graph
         }
     }
 
-    public List<string> Dijkstra(string start, string goal)
+    public List<string> Dijkstra(Graph graph, string start, string goal)
     {
         var distances = new Dictionary<string, int>();
         var previous = new Dictionary<string, string>();
         var queue = new SortedSet<(int, string)>();
 
-        foreach (var node in AdjacencyList.Keys)
+        if (!graph.AdjacencyList.ContainsKey(start))
+        {
+            Console.WriteLine($"Hata: Başlangıç düğümü {start} bulunamadı!");
+            return new List<string>();
+        }
+
+        if (!graph.AdjacencyList.ContainsKey(goal))
+        {
+            Console.WriteLine($"Hata: Hedef düğüm {goal} bulunamadı!");
+            return new List<string>();
+        }
+
+        foreach (var node in graph.AdjacencyList.Keys)
         {
             distances[node] = int.MaxValue;
             previous[node] = null;
         }
-
         distances[start] = 0;
         queue.Add((0, start));
 
@@ -54,7 +65,7 @@ public class Graph
             if (currentNode == goal)
                 break;
 
-            foreach (var (neighbor, weight) in AdjacencyList[currentNode])
+            foreach (var (neighbor, weight) in graph.AdjacencyList[currentNode])
             {
                 int newDistance = currentDistance + weight;
 
@@ -70,6 +81,8 @@ public class Graph
 
         return ReconstructPath(previous, start, goal);
     }
+
+
     public void PrintGraph()
     {
         foreach (var node in AdjacencyList)
@@ -84,15 +97,20 @@ public class Graph
     private List<string> ReconstructPath(Dictionary<string, string> previous, string start, string goal)
     {
         var path = new List<string>();
-        string current = goal;
-
+        var current = goal;
         while (current != null)
         {
-            path.Add(current);
+            path.Insert(0, current);
             current = previous[current];
         }
 
-        path.Reverse();
+        // Eğer path sadece başlangıç düğümünü içeriyorsa, yol bulunamadı demektir
+        if (path.Count == 1 && path[0] != start)
+        {
+            return new List<string>(); // Boş yol, yani ulaşılabilir bir hedef yok
+        }
+
         return path;
     }
+
 }
