@@ -378,7 +378,11 @@ namespace HaritaUygulamasi
                         "bus_yahyakaptan",
                         "bus_umuttepe",
                         "bus_symbolavm",
-                        "bus_41burda"
+                        "bus_41burda",
+                        "tram_otogar",
+                        "tram_yahyakaptan",
+                        "tram_sekapark",
+                        "tram_halkevi"
                     };
 
                 foreach (var otobus in otobusDuraklari.OfType<Otobus>())
@@ -407,6 +411,42 @@ namespace HaritaUygulamasi
                             if (matchingStop != null)
                             {
                                 graph.AddEdge(otobus, matchingStop, surelist[i]);
+                                i++;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Eşleşen durak bulunamadı: {nextStop}");
+                            }
+                        }
+                    }
+                }
+
+                foreach (var tramvay in tramDuraklari.OfType<Tramvay>())
+                {
+                    foreach (var nextStopRaw in tramvay.NextStops)
+                    {
+                        if (string.IsNullOrEmpty(nextStopRaw) || nextStopRaw.Contains("None"))
+                            continue;
+
+                        var nextStop = nextStopRaw.Split('(')[0].Trim();
+
+                        if (!validStops.Contains(nextStop))
+                        {
+                            continue;
+                        }
+
+                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
+
+                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string surestr = string.Empty;
+
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+
+                            if (matchingStop != null)
+                            {
+                                graph.AddEdge(tramvay, matchingStop, surelist[i]);
                                 i++;
                             }
                             else
