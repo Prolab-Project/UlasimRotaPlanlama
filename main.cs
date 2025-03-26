@@ -396,7 +396,7 @@ namespace HaritaUygulamasi
                     }
                 }
 
-                foreach (var tramvay in tramDuraklari.OfType<Otobus>())
+                foreach (var tramvay in tramDuraklari.OfType<Tramvay>())
                 {
                     foreach (var nextStopRaw in tramvay.NextStops)
                     {
