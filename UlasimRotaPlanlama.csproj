@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NextStop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="NextStop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GMap.NET.Core" Version="1.7.5" />
     <PackageReference Include="GMap.NET.WindowsForms" Version="1.7.5" />
   </ItemGroup>

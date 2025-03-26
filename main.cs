@@ -285,7 +285,7 @@ namespace HaritaUygulamasi
                 TramvayData.Add(jsonc.JsonCekme(8));
                 TramvayData.Add(jsonc.JsonCekme(9));
 
-                foreach (var elements in BusData)
+                /*foreach (var elements in BusData)
                 {
                     Console.WriteLine(elements);
                 }
@@ -293,7 +293,7 @@ namespace HaritaUygulamasi
                 foreach (var elements in TramvayData)
                 {
                     Console.WriteLine(elements);
-                }
+                }*/
 
                 List<Arac> otobusDuraklari = new List<Arac>();
 
@@ -341,7 +341,7 @@ namespace HaritaUygulamasi
                 Application.Run(new Form1(aracDuraklari));
 
 
-                foreach (var stop in BusSekapark.NextStops)
+                /*foreach (var stop in BusSekapark.NextStops)
                 {
                     Console.WriteLine(stop);
                 }
@@ -349,7 +349,7 @@ namespace HaritaUygulamasi
                 foreach (var stop in TramSekapark.NextStops)
                 {
                     Console.WriteLine(stop);
-                }
+                }*/
 
 
                 Graph graph = new Graph();
@@ -364,18 +364,186 @@ namespace HaritaUygulamasi
                     graph.AddNode(durak.id);
                 }
 
+                // Kenarları ekleyelim
+                /*foreach (var durak in otobusDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStop in durak.NextStops)
+                    {
+                        string[] stopData = nextStop.Split('('); // StopId(mesafe, süre, ücret) formatını ayırmak için
+                        if (stopData.Length > 1)
+                        {
+                            string stopId = stopData[0]; // Stop ID
+                            string[] details = stopData[1].Replace(")", "").Split(',');
+
+                            if (details.Length >= 2)
+                            {
+                                if (int.TryParse(details[1].Replace("dk", "").Trim(), out int sure))
+                                {
+                                    graph.AddEdge(durak.id, stopId, sure);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Aynısını tramvay için de yapalım
+                foreach (var durak in tramDuraklari.OfType<Tramvay>())
+                {
+                    foreach (var nextStop in durak.NextStops)
+                    {
+                        string[] stopData = nextStop.Split('(');
+                        if (stopData.Length > 1)
+                        {
+                            string stopId = stopData[0];
+                            string[] details = stopData[1].Replace(")", "").Split(',');
+
+                            if (details.Length >= 2)
+                            {
+                                if (int.TryParse(details[1].Replace("dk", "").Trim(), out int sure))
+                                {
+                                    graph.AddEdge(durak.id, stopId, sure);
+                                }
+                            }
+                        }
+                    }
+                }*/
+                foreach (var otobus in otobusDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStopRaw in otobus.NextStops)
+                    {
+                        var nextStop = nextStopRaw.Split('(')[0].Trim(); // Durak ID'sini al
+
+                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string surestr = "ndslkn";
+                        int sure = 0;
+                        foreach (var item in icerik)
+                        {
+                            if (item.Contains("dk"))
+                            {
+                                surestr = new string(item.Where(char.IsDigit).ToArray()); // "10" al
+                                Console.WriteLine("Süre: " + surestr + " dk");
+                                int.TryParse(surestr, out sure);
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            graph.AddEdge(otobus.id, nextStop, sure);
+                        }
+
+                    }
+                }
+                /*
+                foreach (var otobus in otobusDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStopRaw in otobus.NextStops)
+                    {
+                        var nextStop = nextStopRaw.Split('(')[0].Trim(); // Durak ID'sini al
+
+                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string surestr = "ndslkn";
+                        int sure=0;
+                        foreach (var item in icerik)
+                        {
+                            if (item.Contains("dk")) 
+                            {
+                                surestr = new string(item.Where(char.IsDigit).ToArray()); // "10" al
+                                Console.WriteLine("Süre: " + surestr + " dk");
+                                int.TryParse(surestr, out sure);
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            graph.AddEdge(otobus.id, nextStop, sure);
+                        }
+                    }
+                }*/
+
+
+                /*foreach (var tram in tramDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStopRaw in tram.NextStops)
+                    {
+                        var nextStop = nextStopRaw.Split('(')[0].Trim();
+
+                        var sureStr = nextStopRaw.Split('-').FirstOrDefault(s => s.Contains("dk"));
+
+                        int sure = 10; 
+                        if (sureStr != null)
+                        {
+                            sureStr = new string(sureStr.Where(char.IsDigit).ToArray()); 
+                            if (int.TryParse(sureStr, out int parsedSure))
+                            {
+                                sure = parsedSure;
+                            }
+                        }
+
+                        graph.AddEdge(tram.id, nextStop, sure);
+                    }
+                }
+                
+                 
+                 foreach (var otobus in otobusDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStopRaw in otobus.NextStops)
+                    {
+                        var nextStop = nextStopRaw.Split('(')[0].Trim(); // Durak ID'sini al
+
+                        // Parantez içindeki bilgileri ayrıştır
+                        //var icerik = nextStopRaw.Split(new char[] { '(', '-', ')' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string sure = "ndslkn";
+                        foreach (var item in icerik)
+                        {
+                            if (item.Contains("dk")) // "10dk" kısmını bul
+                            {
+                                // "10dk" kısmından sayıyı al
+                                sure = new string(item.Where(char.IsDigit).ToArray()); // "10" al
+                                Console.WriteLine("Süre: " + sure + " dk");
+                            }
+                        }
+                        
+ /*                       int sure = 10;
+                        foreach (var item in icerik)
+                        {
+                            if (item.Contains("dk"))
+                            {
+                                string sureStr = new string(item.Where(char.IsDigit).ToArray()); // "10" alır
+                                if (int.TryParse(sureStr, out int parsedSure))
+                                {
+                                    sure = parsedSure;
+                                }
+                                break; // Süre bulunduğunda çık
+                            }
+                        }
+
+
+
+                // SADECE doğru veriyi ekleyerek fazla "10" hatasını önlüyoruz!
+                if (!string.IsNullOrEmpty(nextStop))
+                {
+                    graph.AddEdge(otobus.id, nextStop, sure);
+                }
+            }
+        }
+
+
+                 */
+
                 graph.PrintGraph();
+                /*
+                foreach (var durak in otobusDuraklari.OfType<Otobus>())
+                {
+                    Console.WriteLine($"Otobus ID: {durak.id}, NextStops Count: {durak.NextStops.Count}");
+                    foreach (var nextStop in durak.NextStops)
+                    {
+                        Console.WriteLine($"  - {nextStop}");
+                    }
+                }*/
 
 
-                // ÇÖZÜLMESİ GEREKEN KISIM : 
 
-                /*  foreach (var durak in otobusDuraklari)
-                  {
-                      foreach (var nextStop in durak.NextStops)
-                      {
-                          graph.AddEdge(durak.id, nextStop.StopId, nextStop.Sure); 
-                      }
-                  }*/
             }
         }
     }

@@ -19,8 +19,16 @@ public class Graph
 
     public void AddEdge(string from, string to, int weight)
     {
-        if (AdjacencyList.ContainsKey(from))
-            AdjacencyList[from].Add((to, weight));
+        if (to == "bus_otogar" || to  == "bus_sekapark" || to == "bus_yahyakaptan" || to == "bus_umuttepe" || to == "bus_symbolavm" || to == "bus_41burda") 
+        {
+            if (AdjacencyList.ContainsKey(from))
+                AdjacencyList[from].Add((to, weight));
+            else
+            {
+                Console.WriteLine($"Hata: {from} düğümü bulunamadı!");
+            }
+            //Console.WriteLine(weight);
+        }
     }
 
     public List<string> Dijkstra(string start, string goal)
