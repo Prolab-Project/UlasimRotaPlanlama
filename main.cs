@@ -418,6 +418,7 @@ namespace HaritaUygulamasi
                 }
 
                 graph.PrintGraph();
+                graph.PrintShortestPath(BusOtogar, BusYahyakaptan);
 
 
                 /*
