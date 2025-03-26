@@ -368,6 +368,7 @@ namespace HaritaUygulamasi
                     graph.AddNode(durak.id);
                 }
 
+
                 int i = 0;
                 foreach (var otobus in otobusDuraklari.OfType<Otobus>())
                 {
@@ -376,7 +377,7 @@ namespace HaritaUygulamasi
                         var nextStop = nextStopRaw.Split('(')[0].Trim(); 
 
                         var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string surestr = "ndslkn";
+                        string surestr = string.Empty ;
 
                         foreach (var item in icerik)
                         {
@@ -394,7 +395,32 @@ namespace HaritaUygulamasi
                         }
                     }
                 }
-                
+
+                foreach (var tramvay in tramDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStopRaw in tramvay.NextStops)
+                    {
+                        var nextStop = nextStopRaw.Split('(')[0].Trim();
+
+                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string surestr = string.Empty;
+
+                        foreach (var item in icerik)
+                        {
+                            if (item.Contains("dk"))
+                            {
+                                surestr = new string(item.Where(char.IsDigit).ToArray());
+                                int.TryParse(surestr, out int sure);
+                                surelist.Add(sure);
+                                i++;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            graph.AddEdge(tramvay.id, nextStop, surelist[i]);
+                        }
+                    }
+                }
                 graph.PrintGraph();
 
             }

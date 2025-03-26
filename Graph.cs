@@ -19,7 +19,7 @@ public class Graph
 
     public void AddEdge(string from, string to, int weight)
     {
-        if (to == "bus_otogar" || to  == "bus_sekapark" || to == "bus_yahyakaptan" || to == "bus_umuttepe" || to == "bus_symbolavm" || to == "bus_41burda") 
+        if (to == "bus_otogar" || to  == "bus_sekapark" || to == "bus_yahyakaptan" || to == "bus_umuttepe" || to == "bus_symbolavm" || to == "bus_41burda" || to == "tram_otogar" || to == "tram_yahyakaptan" || to == "tram_sekapark" || to == "tram_halkevi") 
         {
             if (AdjacencyList.ContainsKey(from))
                 AdjacencyList[from].Add((to, weight));
