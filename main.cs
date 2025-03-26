@@ -264,7 +264,6 @@ namespace HaritaUygulamasi
                 }
             }
         }
-
         internal static class main
         {
             [STAThread]
@@ -288,16 +287,6 @@ namespace HaritaUygulamasi
                 TramvayData.Add(jsonc.JsonCekme(7, surelist));
                 TramvayData.Add(jsonc.JsonCekme(8, surelist));
                 TramvayData.Add(jsonc.JsonCekme(9, surelist));
-
-                /*foreach (var elements in BusData)
-                {
-                    Console.WriteLine(elements);
-                }
-
-                foreach (var elements in TramvayData)
-                {
-                    Console.WriteLine(elements);
-                }*/
 
                 List<Arac> otobusDuraklari = new List<Arac>();
 
@@ -344,18 +333,6 @@ namespace HaritaUygulamasi
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new Form1(aracDuraklari));
 
-
-                /*foreach (var stop in BusSekapark.NextStops)
-                {
-                    Console.WriteLine(stop);
-                }
-
-                foreach (var stop in TramSekapark.NextStops)
-                {
-                    Console.WriteLine(stop);
-                }*/
-
-
                 Graph graph = new Graph();
 
                 foreach (var durak in otobusDuraklari)
@@ -367,7 +344,6 @@ namespace HaritaUygulamasi
                 {
                     graph.AddNode(durak);
                 }
-
 
                 int i = 0;
 
@@ -459,37 +435,6 @@ namespace HaritaUygulamasi
 
                 graph.PrintGraph();
                 graph.PrintShortestPath(BusOtogar, BusYahyakaptan);
-
-
-                /*
-                foreach (var tramvay in tramDuraklari.OfType<Tramvay>())
-                {
-                    foreach (var nextStopRaw in tramvay.NextStops)
-                    {
-                        var nextStop = nextStopRaw.Split('(')[0].Trim();
-
-                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string surestr = string.Empty;
-
-                        foreach (var item in icerik)
-                        {
-                            if (item.Contains("dk"))
-                            {
-                                surestr = new string(item.Where(char.IsDigit).ToArray());
-                                int.TryParse(surestr, out int sure);
-                                surelist.Add(sure);
-                                i++;
-                            }
-                        }
-                        if (!string.IsNullOrEmpty(nextStop))
-                        {
-                            graph.AddEdge(tramvay.id, nextStop, surelist[i]);
-                        }
-                    }
-                }
-                graph.PrintGraph();*/
-
-
 
             }
         }
