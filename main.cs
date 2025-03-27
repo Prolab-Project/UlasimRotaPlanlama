@@ -197,7 +197,7 @@ namespace HaritaUygulamasi
 
         public static class yakinDurakBul
         {
-            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi)
+            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi, Graph graph)
             {
                 Console.Write(" mevcut enlem (lat): ");
                 double lat_konum = Convert.ToDouble(Console.ReadLine());
@@ -257,6 +257,9 @@ namespace HaritaUygulamasi
                         taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
                         taksi.UcretHesapla();
                     }
+                    graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
+
+
                 }
                 else
                 {
@@ -434,7 +437,8 @@ namespace HaritaUygulamasi
                 }
 
                 graph.PrintGraph();
-                graph.PrintShortestPath(BusOtogar, BusYahyakaptan);
+                yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
+                
 
             }
         }
