@@ -241,8 +241,8 @@ namespace HaritaUygulamasi
 
                 if (enYakinDurak != null)
                 {
-                    Console.WriteLine($"En yak n baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzakl kta.");
-                    Console.WriteLine($"En yak n hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzakl kta.");
+                    Console.WriteLine($"En yakin baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzakl kta.");
+                    Console.WriteLine($"En yakin hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzakl kta.");
 
                     if (minMesafe > 3)
                     {
@@ -437,8 +437,8 @@ namespace HaritaUygulamasi
                 }
 
                 graph.PrintGraph();
-                yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
-                
+                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
+                graph.PrintShortestPath(BusOtogar,BusUmuttepe);
 
             }
         }
