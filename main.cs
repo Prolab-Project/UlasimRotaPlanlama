@@ -25,7 +25,7 @@ public static class jsonreader
 }
 public class json
 {
-    public string JsonCekme(int x, List<int> surelist)
+    public string JsonCekme(int x, List<double> surelist , List<double> ucretlist)
     {
         string json = jsonreader.JsonReader("dataset/bedirhan.json");
 
@@ -58,6 +58,7 @@ public class json
                 double ucret = stop.GetProperty("ucret").GetDouble();
 
                 surelist.Add(sure);
+                ucretlist.Add(ucret);
                 nextStopsList.Add($"{stopId}({mesafe}km, {sure}dk, {ucret}TL)");
             }
         }
@@ -276,20 +277,21 @@ namespace HaritaUygulamasi
                 json jsonc = new json();
 
                 ArrayList BusData = new ArrayList();
-                List<int> surelist = new List<int>();
+                List<double> surelist = new List<double>();
+                List<double> ucretlist = new List<double>();
 
-                BusData.Add(jsonc.JsonCekme(0, surelist));
-                BusData.Add(jsonc.JsonCekme(1, surelist));
-                BusData.Add(jsonc.JsonCekme(2, surelist));
-                BusData.Add(jsonc.JsonCekme(3, surelist));
-                BusData.Add(jsonc.JsonCekme(4, surelist));
-                BusData.Add(jsonc.JsonCekme(5, surelist));
+                BusData.Add(jsonc.JsonCekme(0, surelist , ucretlist));
+                BusData.Add(jsonc.JsonCekme(1, surelist, ucretlist));
+                BusData.Add(jsonc.JsonCekme(2, surelist, ucretlist));
+                BusData.Add(jsonc.JsonCekme(3, surelist, ucretlist));
+                BusData.Add(jsonc.JsonCekme(4, surelist, ucretlist));
+                BusData.Add(jsonc.JsonCekme(5, surelist, ucretlist));
 
                 ArrayList TramvayData = new ArrayList();
-                TramvayData.Add(jsonc.JsonCekme(6, surelist));
-                TramvayData.Add(jsonc.JsonCekme(7, surelist));
-                TramvayData.Add(jsonc.JsonCekme(8, surelist));
-                TramvayData.Add(jsonc.JsonCekme(9, surelist));
+                TramvayData.Add(jsonc.JsonCekme(6, surelist, ucretlist));
+                TramvayData.Add(jsonc.JsonCekme(7, surelist, ucretlist));
+                TramvayData.Add(jsonc.JsonCekme(8, surelist, ucretlist));
+                TramvayData.Add(jsonc.JsonCekme(9, surelist, ucretlist));
 
                 List<Arac> otobusDuraklari = new List<Arac>();
 
@@ -348,8 +350,6 @@ namespace HaritaUygulamasi
                     graph.AddNode(durak);
                 }
 
-                int i = 0;
-
                 var validStops = new List<string>
                     {
                         "bus_otogar",
@@ -363,6 +363,8 @@ namespace HaritaUygulamasi
                         "tram_sekapark",
                         "tram_halkevi"
                     };
+
+                int i = 0;
 
                 foreach (var otobus in otobusDuraklari.OfType<Otobus>())
                 {
@@ -389,7 +391,7 @@ namespace HaritaUygulamasi
 
                             if (matchingStop != null)
                             {
-                                graph.AddEdge(otobus, matchingStop, surelist[i]);
+                                graph.AddEdge(otobus, matchingStop, ucretlist[i]);
                                 i++;
                             }
                             else
@@ -425,7 +427,7 @@ namespace HaritaUygulamasi
 
                             if (matchingStop != null)
                             {
-                                graph.AddEdge(tramvay, matchingStop, surelist[i]);
+                                graph.AddEdge(tramvay, matchingStop, ucretlist[i]);
                                 i++;
                             }
                             else
@@ -440,6 +442,94 @@ namespace HaritaUygulamasi
                 //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
                 graph.PrintShortestPath(BusOtogar,BusUmuttepe);
 
+                Graph graph2 = new Graph();
+
+                foreach (var durak in otobusDuraklari)
+                {
+                    graph2.AddNode(durak);
+                }
+
+                foreach (var durak in tramDuraklari)
+                {
+                    graph2.AddNode(durak);
+                }
+
+                int a = 0;
+
+                foreach (var otobus in otobusDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStopRaw in otobus.NextStops)
+                    {
+                        if (string.IsNullOrEmpty(nextStopRaw) || nextStopRaw.Contains("None"))
+                            continue;
+
+                        var nextStop = nextStopRaw.Split('(')[0].Trim();
+
+                        if (!validStops.Contains(nextStop))
+                        {
+                            continue;
+                        }
+
+                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
+
+                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string surestr = string.Empty;
+
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+
+                            if (matchingStop != null)
+                            {
+                                graph2.AddEdge(otobus, matchingStop, surelist[a]);
+                                a++;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Eşleşen durak bulunamadı: {nextStop}");
+                            }
+                        }
+                    }
+                }
+
+                foreach (var tramvay in tramDuraklari.OfType<Tramvay>())
+                {
+                    foreach (var nextStopRaw in tramvay.NextStops)
+                    {
+                        if (string.IsNullOrEmpty(nextStopRaw) || nextStopRaw.Contains("None"))
+                            continue;
+
+                        var nextStop = nextStopRaw.Split('(')[0].Trim();
+
+                        if (!validStops.Contains(nextStop))
+                        {
+                            continue;
+                        }
+
+                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
+
+                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string surestr = string.Empty;
+
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+
+                            if (matchingStop != null)
+                            {
+                                graph2.AddEdge(tramvay, matchingStop, surelist[a]);
+                                a++;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Eşleşen durak bulunamadı: {nextStop}");
+                            }
+                        }
+                    }
+                }
+
+                graph2.PrintGraph();
+                
             }
         }
     }

@@ -5,20 +5,20 @@ using UlasimRotaPlanlama.Models.Arac;
 
 public class Graph
 {
-    public Dictionary<Arac, List<(Arac, int)>> AdjacencyList { get; set; }
+    public Dictionary<Arac, List<(Arac, double)>> AdjacencyList { get; set; }
 
     public Graph()
     {
-        AdjacencyList = new Dictionary<Arac, List<(Arac, int)>>();
+        AdjacencyList = new Dictionary<Arac, List<(Arac, double)>>();
     }
 
     public void AddNode(Arac arac)
     {
         if (!AdjacencyList.ContainsKey(arac))
-            AdjacencyList[arac] = new List<(Arac, int)>();
+            AdjacencyList[arac] = new List<(Arac, double)>();
     }
 
-    public void AddEdge(Arac from, Arac to, int weight)
+    public void AddEdge(Arac from, Arac to, double weight)
     {
         if (!AdjacencyList.ContainsKey(from))
         {
@@ -28,11 +28,11 @@ public class Graph
         AdjacencyList[from].Add((to, weight));
     }
 
-    public (Dictionary<Arac, int> distances, Dictionary<Arac, Arac> previousNodes) Dijkstra(Arac start)
+    public (Dictionary<Arac, double> distances, Dictionary<Arac, Arac> previousNodes) Dijkstra(Arac start)
     {
-        var distances = new Dictionary<Arac, int>();
+        var distances = new Dictionary<Arac, double>();
         var previousNodes = new Dictionary<Arac, Arac>();
-        var priorityQueue = new SortedSet<(int, Arac)>(Comparer<(int, Arac)>.Create((a, b) =>
+        var priorityQueue = new SortedSet<(double, Arac)>(Comparer<(double, Arac)>.Create((a, b) =>
             a.Item1 == b.Item1 ? a.Item2.id.CompareTo(b.Item2.id) : a.Item1.CompareTo(b.Item1)
         ));
 
@@ -51,21 +51,21 @@ public class Graph
             priorityQueue.Remove(current);
 
             var currentNode = current.Item2;
-            int currentDistance = current.Item1;
+            double currentDistance = current.Item1;
 
             if (distances[currentNode] < currentDistance)
                 continue;
 
             foreach (var (neighbor, weight) in AdjacencyList[currentNode])
             {
-                int altDist = distances[currentNode] + weight;
+                double altDist = distances[currentNode] + weight;
 
                 if (altDist < distances[neighbor])
                 {
-                    priorityQueue.Remove((distances[neighbor], neighbor));  // Önce çıkar
+                    priorityQueue.Remove((distances[neighbor], neighbor));  
                     distances[neighbor] = altDist;
                     previousNodes[neighbor] = currentNode;
-                    priorityQueue.Add((altDist, neighbor));  // Sonra ekle
+                    priorityQueue.Add((altDist, neighbor)); 
                 }
             }
         }
@@ -75,7 +75,7 @@ public class Graph
 
     public void PrintShortestPath(Arac start, Arac end)
     {
-        var (distances, previousNodes) = Dijkstra(start); // 🎯 previousNodes'u aldık
+        var (distances, previousNodes) = Dijkstra(start); 
 
         if (!distances.ContainsKey(end) || distances[end] == int.MaxValue)
         {
@@ -95,12 +95,12 @@ public class Graph
         Console.Write($"En kısa yol {start.id} -> {end.id} (Mesafe: {distances[end]}): ");
         while (path.Count > 0)
         {
+
             Console.Write(path.Pop().id);
             if (path.Count > 0) Console.Write(" -> ");
         }
         Console.WriteLine();
     }
-
 
     public void PrintGraph()
     {
