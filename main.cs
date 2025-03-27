@@ -25,7 +25,7 @@ public static class jsonreader
 }
 public class json
 {
-    public string JsonCekme(int x, List<double> surelist , List<double> ucretlist)
+    public string JsonCekme(int x, List<double> surelist, List<double> ucretlist)
     {
         string json = jsonreader.JsonReader("dataset/bedirhan.json");
 
@@ -48,6 +48,10 @@ public class json
 
         List<string> nextStopsList = new List<string>();
 
+        // Durak bilgilerini yazdır
+        Console.WriteLine($"\nDurak: {name} (ID: {id})");
+        Console.WriteLine("Next Stops:");
+
         if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("nextStops", out JsonElement nextStops))
         {
             foreach (JsonElement stop in nextStops.EnumerateArray())
@@ -57,16 +61,39 @@ public class json
                 int sure = stop.GetProperty("sure").GetInt32();
                 double ucret = stop.GetProperty("ucret").GetDouble();
 
+                Console.WriteLine($"  -> {stopId}: {mesafe}km, {sure}dk, {ucret}TL");
+
                 surelist.Add(sure);
                 ucretlist.Add(ucret);
                 nextStopsList.Add($"{stopId}({mesafe}km, {sure}dk, {ucret}TL)");
             }
         }
 
+        Console.WriteLine("Transfer Bilgileri:");
+        if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("transfer", out JsonElement Transfer) && 
+            !Transfer.ValueKind.Equals(JsonValueKind.Null))
+        {
+            string transferStopId = Transfer.GetProperty("transferStopId").GetString();
+            double transferSure = Transfer.GetProperty("transferSure").GetDouble();
+            double transferUcret = Transfer.GetProperty("transferUcret").GetDouble();
+
+            Console.WriteLine($"  -> Transfer durağı: {transferStopId}");
+            Console.WriteLine($"  -> Transfer süresi: {transferSure}dk");
+            Console.WriteLine($"  -> Transfer ücreti: {transferUcret}TL");
+
+            surelist.Add((int)transferSure);
+            ucretlist.Add(transferUcret);
+            nextStopsList.Add($"{transferStopId}({0}km, {transferSure}dk, {transferUcret}TL)");
+        }
+        else
+        {
+            Console.WriteLine("  -> Transfer bilgisi yok");
+        }
+        Console.WriteLine("------------------------");
+
         string nextStopsData = nextStopsList.Count > 0 ? string.Join(", ", nextStopsList) : "None";
 
         string data = $"{lat} / {lon} / {id} / {sondurak} / {type} / {name} / {nextStopsData}";
-
         return data;
     }
 }
@@ -380,24 +407,12 @@ namespace HaritaUygulamasi
                             continue;
                         }
 
-                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
+                        var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
-                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string surestr = string.Empty;
-
-                        if (!string.IsNullOrEmpty(nextStop))
+                        if (matchingStop != null && i < ucretlist.Count)
                         {
-                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
-
-                            if (matchingStop != null)
-                            {
-                                graph.AddEdge(otobus, matchingStop, ucretlist[i]);
-                                i++;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Eşleşen durak bulunamadı: {nextStop}");
-                            }
+                            graph.AddEdge(otobus, matchingStop, ucretlist[i]);
+                            i++;
                         }
                     }
                 }
@@ -416,24 +431,16 @@ namespace HaritaUygulamasi
                             continue;
                         }
 
-                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
+                        var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
-                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string surestr = string.Empty;
-
-                        if (!string.IsNullOrEmpty(nextStop))
+                        if (matchingStop != null && i < ucretlist.Count)
                         {
-                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
-
-                            if (matchingStop != null)
-                            {
-                                graph.AddEdge(tramvay, matchingStop, ucretlist[i]);
-                                i++;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Eşleşen durak bulunamadı: {nextStop}");
-                            }
+                            graph.AddEdge(tramvay, matchingStop, ucretlist[i]);
+                            i++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Ücret listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
                         }
                     }
                 }
@@ -472,21 +479,18 @@ namespace HaritaUygulamasi
 
                         Console.WriteLine($"Geçerli NextStop: {nextStop}");
 
-                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string surestr = string.Empty;
-
                         if (!string.IsNullOrEmpty(nextStop))
                         {
                             var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
-                            if (matchingStop != null)
+                            if (matchingStop != null && a < surelist.Count)
                             {
                                 graph2.AddEdge(otobus, matchingStop, surelist[a]);
                                 a++;
                             }
                             else
                             {
-                                Console.WriteLine($"Eşleşen durak bulunamadı: {nextStop}");
+                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
                             }
                         }
                     }
@@ -508,21 +512,18 @@ namespace HaritaUygulamasi
 
                         Console.WriteLine($"Geçerli NextStop: {nextStop}");
 
-                        var icerik = nextStopRaw.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string surestr = string.Empty;
-
                         if (!string.IsNullOrEmpty(nextStop))
                         {
                             var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
-                            if (matchingStop != null)
+                            if (matchingStop != null && a < surelist.Count)
                             {
                                 graph2.AddEdge(tramvay, matchingStop, surelist[a]);
                                 a++;
                             }
                             else
                             {
-                                Console.WriteLine($"Eşleşen durak bulunamadı: {nextStop}");
+                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
                             }
                         }
                     }
@@ -530,6 +531,12 @@ namespace HaritaUygulamasi
 
                 graph2.PrintGraph();
                 
+                // Debug için surelist içeriğini kontrol etmek isterseniz:
+                Console.WriteLine($"surelist boyutu: {surelist.Count}");
+                foreach (var sure in surelist)
+                {
+                    Console.WriteLine($"Süre: {sure}");
+                }
             }
         }
     }
