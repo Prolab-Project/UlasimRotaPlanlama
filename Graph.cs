@@ -18,12 +18,16 @@ public class Graph
             AdjacencyList[arac] = new List<(Arac, double)>();
     }
 
-    public void AddEdge(Arac from, Arac to, double weight)
+    public void AddEdge(Arac from, Arac to, double weight, bool isTransfer = false)
     {
         if (!AdjacencyList.ContainsKey(from))
         {
             Console.WriteLine($"Hata: {from.id} düğümü bulunamadı!");
             return;
+        }
+        if (isTransfer)
+        {
+            weight += 0.5; // Örnek transfer ücreti ekleniyor
         }
         AdjacencyList[from].Add((to, weight));
     }

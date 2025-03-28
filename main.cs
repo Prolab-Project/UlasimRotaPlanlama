@@ -223,76 +223,93 @@ namespace HaritaUygulamasi
             }
         }
 
-        public static class yakinDurakBul
+        public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi, Graph graph)
         {
-            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi, Graph graph)
+            Console.Write(" mevcut enlem (lat): ");
+            double lat_konum = Convert.ToDouble(Console.ReadLine());
+
+            Console.Write(" mevcut boylam (lon): ");
+            double lon_konum = Convert.ToDouble(Console.ReadLine());
+
+            Console.Write(" hedef enlem (lat): ");
+            double hedef_lat = Convert.ToDouble(Console.ReadLine());
+
+            Console.Write(" hedef boylam (lon): ");
+            double hedef_lon = Convert.ToDouble(Console.ReadLine());
+
+            double minMesafe = double.MaxValue;
+            double minMesafeHedef = double.MaxValue;
+            Arac enYakinDurak = null;
+            Arac hedefEnYakinDurak = null;
+
+            for (int i = 0; i < Durak.Count; i++)
             {
-                Console.Write(" mevcut enlem (lat): ");
-                double lat_konum = Convert.ToDouble(Console.ReadLine());
+                Console.WriteLine($"Durak {i}: " + Durak[i].name);
+            }
 
-                Console.Write(" mevcut boylam (lon): ");
-                double lon_konum = Convert.ToDouble(Console.ReadLine());
+            foreach (var durak in Durak)
+            {
+                double mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
+                double mesafeHedef = mesafeHesapla.MesafeHesapla(hedef_lat, hedef_lon, durak.lat, durak.lon);
 
-                Console.Write(" hedef enlem (lat): ");
-                double hedef_lat = Convert.ToDouble(Console.ReadLine());
-
-                Console.Write(" hedef boylam (lon): ");
-                double hedef_lon = Convert.ToDouble(Console.ReadLine());
-
-                double minMesafe = double.MaxValue;
-                double minMesafeHedef = double.MaxValue;
-                Arac enYakinDurak = null;
-                Arac hedefEnYakinDurak = null;
-
-                for (int i = 0; i < Durak.Count; i++)
+                if (mesafe < minMesafe)
                 {
-                    Console.WriteLine($"Durak {i}: " + Durak[i].name);
+                    minMesafe = mesafe;
+                    enYakinDurak = durak;
                 }
 
-                foreach (var durak in Durak)
+                if (mesafeHedef < minMesafeHedef)
                 {
-                    double mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
-                    double mesafeHedef = mesafeHesapla.MesafeHesapla(hedef_lat, hedef_lon, durak.lat, durak.lon);
+                    minMesafeHedef = mesafeHedef;
+                    hedefEnYakinDurak = durak;
+                }
+            }
 
-                    if (mesafe < minMesafe)
+            if (enYakinDurak != null)
+            {
+                Console.WriteLine($"En yakin baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklıkta.");
+                Console.WriteLine($"En yakin hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklıkta.");
+
+                // Aktarma duraklarını kontrol et
+                if (enYakinDurak is Otobus && hedefEnYakinDurak is Tramvay)
+                {
+                    // Otobüsten tramvaya aktarma
+                    var transferStop = graph.AdjacencyList[enYakinDurak].FirstOrDefault(t => t.Item1.id == "tram_otogar");
+                    if (transferStop != default)
                     {
-                        minMesafe = mesafe;
-                        enYakinDurak = durak;
+                        Console.WriteLine($"Aktarma durağı: {transferStop.Item1.name}");
                     }
-
-                    if (mesafeHedef < minMesafeHedef)
+                }
+                else if (enYakinDurak is Tramvay && hedefEnYakinDurak is Otobus)
+                {
+                    // Tramvaydan otobüse aktarma
+                    var transferStop = graph.AdjacencyList[enYakinDurak].FirstOrDefault(t => t.Item1.id == "bus_otogar");
+                    if (transferStop != default)
                     {
-                        minMesafeHedef = mesafeHedef;
-                        hedefEnYakinDurak = durak;
+                        Console.WriteLine($"Aktarma durağı: {transferStop.Item1.name}");
                     }
                 }
 
-                if (enYakinDurak != null)
+                if (minMesafe > 3)
                 {
-                    Console.WriteLine($"En yakin baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzakl kta.");
-                    Console.WriteLine($"En yakin hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzakl kta.");
-
-                    if (minMesafe > 3)
-                    {
-                        Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanman z  nerilir.");
-                        taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
-                        taksi.UcretHesapla();
-                    }
-
-                    if (minMesafeHedef > 3)
-                    {
-                        Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanman z  nerilir.");
-                        taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
-                        taksi.UcretHesapla();
-                    }
-                    graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
-
-
+                    Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanman z  nerilir.");
+                    taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
+                    taksi.UcretHesapla();
                 }
-                else
+
+                if (minMesafeHedef > 3)
                 {
-                    Console.WriteLine("Yak nlarda otob s dura   bulunamad .");
+                    Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanman z  nerilir.");
+                    taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
+                    taksi.UcretHesapla();
                 }
+                graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
+
+
+            }
+            else
+            {
+                Console.WriteLine("Yakınlarda otobüs durağı bulunamadı.");
             }
         }
         internal static class main
