@@ -29,7 +29,11 @@ public class Graph
         {
             weight += 0.5; // Örnek transfer ücreti ekleniyor
         }
+        if (!AdjacencyList.ContainsKey(to))
+            AdjacencyList[to] = new List<(Arac, double)>();
+
         AdjacencyList[from].Add((to, weight));
+        AdjacencyList[to].Add((from, weight)); 
     }
 
     public (Dictionary<Arac, double> distances, Dictionary<Arac, Arac> previousNodes) Dijkstra(Arac start)

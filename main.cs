@@ -464,7 +464,7 @@ namespace HaritaUygulamasi
 
                 graph.PrintGraph();
                 //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
-                graph.PrintShortestPath(BusOtogar,BusUmuttepe);
+                graph.PrintShortestPath(BusSymbolavm,BusOtogar);
 
                 Graph graph2 = new Graph();
 
@@ -548,12 +548,6 @@ namespace HaritaUygulamasi
 
                 graph2.PrintGraph();
                 
-                // Debug için surelist içeriğini kontrol etmek isterseniz:
-                Console.WriteLine($"surelist boyutu: {surelist.Count}");
-                foreach (var sure in surelist)
-                {
-                    Console.WriteLine($"Süre: {sure}");
-                }
             }
         }
     }
