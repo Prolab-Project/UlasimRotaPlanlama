@@ -13,6 +13,7 @@ using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
+using System.Drawing;
 
 public static class jsonreader
 {
@@ -70,7 +71,7 @@ public class json
         }
 
         Console.WriteLine("Transfer Bilgileri:");
-        if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("transfer", out JsonElement Transfer) && 
+        if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("transfer", out JsonElement Transfer) &&
             !Transfer.ValueKind.Equals(JsonValueKind.Null))
         {
             string transferStopId = Transfer.GetProperty("transferStopId").GetString();
@@ -148,11 +149,13 @@ namespace HaritaUygulamasi
     {
         private GMapControl gMapControl;
         private List<Arac> aracListesi;
+        private Graph graph;
 
-        public Form1(List<Arac> arac)
+        public Form1(List<Arac> arac, Graph graph = null)
         {
             this.aracListesi = arac;
-            this.Text = "Harita Uygulamas ";
+            this.graph = graph;
+            this.Text = "Harita Uygulaması";
             this.Width = 800;
             this.Height = 600;
 
@@ -182,6 +185,36 @@ namespace HaritaUygulamasi
             }
         }
 
+        public void DrawRoute(List<Arac> path)
+        {
+            if (path == null || path.Count < 2)
+                return;
+
+            GMapOverlay routeOverlay = new GMapOverlay("route");
+
+            List<PointLatLng> points = new List<PointLatLng>();
+            foreach (var arac in path)
+            {
+                points.Add(new PointLatLng(arac.lat, arac.lon));
+            }
+
+            GMapRoute route = new GMapRoute(points, "Rota");
+            route.Stroke = new Pen(Color.Red, 3);
+
+            routeOverlay.Routes.Add(route);
+
+            AddDirectionArrows(points, routeOverlay);
+
+            gMapControl.Overlays.Add(routeOverlay);
+
+            gMapControl.Refresh();
+
+            if (points.Count > 0)
+            {
+                gMapControl.ZoomAndCenterRoutes("route");
+            }
+        }
+
         private void AddMarkerAtLocation(double lat, double lon, string description)
         {
             GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
@@ -204,6 +237,25 @@ namespace HaritaUygulamasi
                 }
             };
         }
+
+        private void AddDirectionArrows(List<PointLatLng> points, GMapOverlay overlay)
+        {
+            if (points.Count < 2)
+                return;
+
+            for (int i = 0; i < points.Count - 1; i += 1)
+            {
+                double midLat = (points[i].Lat + points[i + 1].Lat) / 2;
+                double midLng = (points[i].Lng + points[i + 1].Lng) / 2;
+
+                GMapMarker arrow = new GMarkerGoogle(
+                    new PointLatLng(midLat, midLng),
+                    GMarkerGoogleType.arrow);
+
+                overlay.Markers.Add(arrow);
+            }
+        }
+
         public static class mesafeHesapla
         {
             public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
@@ -311,12 +363,16 @@ namespace HaritaUygulamasi
                 }
             }
         }
-        
+
         internal static class main
         {
             [STAThread]
             static void Main()
             {
+                // Bu metodları en başta çağırın
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
                 Taksi taksi = new Taksi();
                 json jsonc = new json();
 
@@ -324,7 +380,7 @@ namespace HaritaUygulamasi
                 List<double> surelist = new List<double>();
                 List<double> ucretlist = new List<double>();
 
-                BusData.Add(jsonc.JsonCekme(0, surelist , ucretlist));
+                BusData.Add(jsonc.JsonCekme(0, surelist, ucretlist));
                 BusData.Add(jsonc.JsonCekme(1, surelist, ucretlist));
                 BusData.Add(jsonc.JsonCekme(2, surelist, ucretlist));
                 BusData.Add(jsonc.JsonCekme(3, surelist, ucretlist));
@@ -371,16 +427,9 @@ namespace HaritaUygulamasi
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
 
-                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi);
-                //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
-
                 List<Arac> aracDuraklari = new List<Arac>();
                 aracDuraklari.AddRange(otobusDuraklari);
                 aracDuraklari.AddRange(tramDuraklari);
-
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1(aracDuraklari));
 
                 Graph graph = new Graph();
 
@@ -463,184 +512,17 @@ namespace HaritaUygulamasi
                 }
 
                 graph.PrintGraph();
-                yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
-                graph.PrintShortestPath(BusUmuttepe,TramOtogar);
+                graph.PrintShortestPath(BusUmuttepe, TramOtogar);
 
-                Graph graph2 = new Graph();
+                // Form1'i graph ile birlikte oluştur
+                Form1 form = new Form1(aracDuraklari, graph);
 
-                foreach (var durak in otobusDuraklari)
-                {
-                    graph2.AddNode(durak);
-                }
+                // Rota hesapla ve çiz
+                List<Arac> shortestPath = graph.GetShortestPath(BusUmuttepe, TramOtogar);
+                form.DrawRoute(shortestPath);
 
-                foreach (var durak in tramDuraklari)
-                {
-                    graph2.AddNode(durak);
-                }
-
-                int a = 0;
-
-                foreach (var otobus in otobusDuraklari.OfType<Otobus>())
-                {
-                    foreach (var nextStopRaw in otobus.NextStops)
-                    {
-                        if (string.IsNullOrEmpty(nextStopRaw) || nextStopRaw.Contains("None"))
-                            continue;
-
-                        var nextStop = nextStopRaw.Split('(')[0].Trim();
-
-                        if (!validStops.Contains(nextStop))
-                        {
-                            continue;
-                        }
-
-                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
-
-                        if (!string.IsNullOrEmpty(nextStop))
-                        {
-                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
-
-                            if (matchingStop != null && a < surelist.Count)
-                            {
-                                graph2.AddEdge(otobus, matchingStop, surelist[a]);
-                                a++;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
-                            }
-                        }
-                    }
-                }
-
-                foreach (var tramvay in tramDuraklari.OfType<Tramvay>())
-                {
-                    foreach (var nextStopRaw in tramvay.NextStops)
-                    {
-                        if (string.IsNullOrEmpty(nextStopRaw) || nextStopRaw.Contains("None"))
-                            continue;
-
-                        var nextStop = nextStopRaw.Split('(')[0].Trim();
-
-                        if (!validStops.Contains(nextStop))
-                        {
-                            continue;
-                        }
-
-                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
-
-                        if (!string.IsNullOrEmpty(nextStop))
-                        {
-                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
-
-                            if (matchingStop != null && a < surelist.Count)
-                            {
-                                graph2.AddEdge(tramvay, matchingStop, surelist[a]);
-                                a++;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
-                            }
-                        }
-                    }
-                }
-
-                graph2.PrintGraph();
-                
+                Application.Run(form);
             }
         }
     }
-}/*
-using System;
-using System.Windows.Forms;
-using GMap.NET;
-using GMap.NET.WindowsForms;
-using GMap.NET.MapProviders;
-using GMap.NET.WindowsForms.Markers;
-
-namespace HaritaUygulamasi
-{
-    public partial class Form1 : Form
-    {
-        private GMapControl gMapControl;
-
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            this.gMapControl = new GMapControl();
-            this.SuspendLayout();
-
-            // gMapControl  zelliklerini ayarl yoruz
-            this.gMapControl.Dock = DockStyle.Fill;
-            this.gMapControl.MapProvider = GoogleMapProvider.Instance;  // Google haritas  kullan yoruz
-            GMaps.Instance.Mode = AccessMode.ServerOnly;  // Yaln zca sunucu  zerinden harita verisi al nacak
-            this.Controls.Add(this.gMapControl);
-
-            // Harita ba lang   ayarlar 
-            gMapControl.Position = new GMap.NET.PointLatLng(40.730610, -73.935242);  // Ba lang   konumu (New York)
-            gMapControl.MinZoom = 0;   // Minimum zoom seviyesi
-            gMapControl.MaxZoom = 20;  // Maksimum zoom seviyesi
-
-
-            // Form1  zelliklerini ayarl yoruz
-            this.ClientSize = new System.Drawing.Size(800, 600);  // Form boyutunu belirliyoruz
-            this.Name = "Form1";
-            this.Text = "Harita Uygulamas ";
-            this.Load += new System.EventHandler(this.Form1_Load);
-
-            this.ResumeLayout(false);
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // Harita  zerinde marker ekliyoruz
-            AddMarkerAtLocation(40.730610, -73.935242, "Burada bir buton ekliyoruz!");
-
-            // Ba ka bir marker ekleyelim
-            AddMarkerAtLocation(40.740610, -73.935242, "Ba ka bir konum");
-        }
-
-        private void AddMarkerAtLocation(double lat, double lon, string description)
-        {
-            // GMap  zerinde marker olu turuyoruz
-            GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
-            marker.ToolTipText = description;
-
-            // Marker'  eklemek i in GMapOverlay kullan yoruz
-            GMapOverlay markers = new GMapOverlay("markers");
-            markers.Markers.Add(marker);
-            gMapControl.Overlays.Add(markers);
-
-            // Marker t klama olay n  i lemek i in
-            gMapControl.MouseClick += (sender, e) =>
-            {
-                // Mouse t klama olay  kontrol 
-                if (e.Button == MouseButtons.Left)
-                {
-                    // T klanan yerin koordinatlar n  kontrol ediyoruz
-                    GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
-
-                    // E er t klanan koordinat, marker' n koordinat na yak nsa
-                    if (clickPos.Lat == lat && clickPos.Lng == lon)
-                    {
-                        MessageBox.Show("T klanan yerin a  klamas : " + description);
-                    }
-                }
-            };
-        }
-
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
-        }
-    }
 }
-*/

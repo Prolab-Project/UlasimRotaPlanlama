@@ -121,4 +121,60 @@ public class Graph
             }
         }
     }
+
+    public List<Arac> GetShortestPath(Arac start, Arac end)
+    {
+        // Dijkstra algoritması ile en kısa yolu hesapla
+        Dictionary<Arac, double> distances = new Dictionary<Arac, double>();
+        Dictionary<Arac, Arac> previous = new Dictionary<Arac, Arac>();
+        List<Arac> nodes = new List<Arac>();
+
+        foreach (var node in AdjacencyList.Keys)
+        {
+            distances[node] = double.MaxValue;
+            previous[node] = null;
+            nodes.Add(node);
+        }
+
+        distances[start] = 0;
+
+        while (nodes.Count > 0)
+        {
+            Arac smallest = nodes.OrderBy(n => distances[n]).First();
+            
+            if (smallest == end)
+                break;
+            
+            nodes.Remove(smallest);
+
+            foreach (var neighbor in AdjacencyList[smallest])
+            {
+                double alt = distances[smallest] + neighbor.Item2;
+                if (alt < distances[neighbor.Item1])
+                {
+                    distances[neighbor.Item1] = alt;
+                    previous[neighbor.Item1] = smallest;
+                }
+            }
+        }
+
+        // Yolu oluştur
+        List<Arac> path = new List<Arac>();
+        Arac current = end;
+
+        // Eğer hedef noktasına ulaşılamadıysa boş liste döndür
+        if (previous[current] == null && current != start)
+        {
+            return path;
+        }
+
+        while (current != null)
+        {
+            path.Add(current);
+            current = previous[current];
+        }
+
+        path.Reverse(); // Başlangıçtan hedefe doğru sırala
+        return path;
+    }
 }
