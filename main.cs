@@ -184,7 +184,6 @@ namespace HaritaUygulamasi
                 AddMarkerAtLocation(arac.lat, arac.lon, arac.name);
             }
         }
-
         public void DrawRoute(List<Arac> path)
         {
             if (path == null || path.Count < 2)
@@ -237,7 +236,6 @@ namespace HaritaUygulamasi
                 }
             };
         }
-
         private void AddDirectionArrows(List<PointLatLng> points, GMapOverlay overlay)
         {
             if (points.Count < 2)
@@ -255,7 +253,6 @@ namespace HaritaUygulamasi
                 overlay.Markers.Add(arrow);
             }
         }
-
         public static class mesafeHesapla
         {
             public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
@@ -355,7 +352,6 @@ namespace HaritaUygulamasi
                         taksi.UcretHesapla();
                     }
                     graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
-
                 }
                 else
                 {
@@ -369,7 +365,6 @@ namespace HaritaUygulamasi
             [STAThread]
             static void Main()
             {
-                // Bu metodları en başta çağırın
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
@@ -426,6 +421,9 @@ namespace HaritaUygulamasi
 
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
+
+                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi);
+                //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
 
                 List<Arac> aracDuraklari = new List<Arac>();
                 aracDuraklari.AddRange(otobusDuraklari);
@@ -512,17 +510,189 @@ namespace HaritaUygulamasi
                 }
 
                 graph.PrintGraph();
-                graph.PrintShortestPath(BusUmuttepe, TramOtogar);
+                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
+                //graph.PrintShortestPath(BusSekapark, BusOtogar);
 
-                // Form1'i graph ile birlikte oluştur
                 Form1 form = new Form1(aracDuraklari, graph);
 
-                // Rota hesapla ve çiz
-                List<Arac> shortestPath = graph.GetShortestPath(BusUmuttepe, TramOtogar);
+                List<Arac> shortestPath = graph.GetShortestPath(BusSekapark, BusOtogar);
                 form.DrawRoute(shortestPath);
-
                 Application.Run(form);
+
+                Graph graph2 = new Graph();
+
+                foreach (var durak in otobusDuraklari)
+                {
+                    graph2.AddNode(durak);
+                }
+
+                foreach (var durak in tramDuraklari)
+                {
+                    graph2.AddNode(durak);
+                }
+
+                int a = 0;
+
+                foreach (var otobus in otobusDuraklari.OfType<Otobus>())
+                {
+                    foreach (var nextStopRaw in otobus.NextStops)
+                    {
+                        if (string.IsNullOrEmpty(nextStopRaw) || nextStopRaw.Contains("None"))
+                            continue;
+
+                        var nextStop = nextStopRaw.Split('(')[0].Trim();
+
+                        if (!validStops.Contains(nextStop))
+                        {
+                            continue;
+                        }
+
+                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
+
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+
+                            if (matchingStop != null && a < surelist.Count)
+                            {
+                                graph2.AddEdge(otobus, matchingStop, surelist[a]);
+                                a++;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
+                            }
+                        }
+                    }
+                }
+
+                foreach (var tramvay in tramDuraklari.OfType<Tramvay>())
+                {
+                    foreach (var nextStopRaw in tramvay.NextStops)
+                    {
+                        if (string.IsNullOrEmpty(nextStopRaw) || nextStopRaw.Contains("None"))
+                            continue;
+
+                        var nextStop = nextStopRaw.Split('(')[0].Trim();
+
+                        if (!validStops.Contains(nextStop))
+                        {
+                            continue;
+                        }
+
+                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
+
+                        if (!string.IsNullOrEmpty(nextStop))
+                        {
+                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+
+                            if (matchingStop != null && a < surelist.Count)
+                            {
+                                graph2.AddEdge(tramvay, matchingStop, surelist[a]);
+                                a++;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
+                            }
+                        }
+                    }
+                }
+
+                graph2.PrintGraph();
             }
         }
     }
+}/*
+using System;
+using System.Windows.Forms;
+using GMap.NET;
+using GMap.NET.WindowsForms;
+using GMap.NET.MapProviders;
+using GMap.NET.WindowsForms.Markers;
+
+namespace HaritaUygulamasi
+{
+    public partial class Form1 : Form
+    {
+        private GMapControl gMapControl;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            this.gMapControl = new GMapControl();
+            this.SuspendLayout();
+
+            // gMapControl  zelliklerini ayarl yoruz
+            this.gMapControl.Dock = DockStyle.Fill;
+            this.gMapControl.MapProvider = GoogleMapProvider.Instance;  // Google haritas  kullan yoruz
+            GMaps.Instance.Mode = AccessMode.ServerOnly;  // Yaln zca sunucu  zerinden harita verisi al nacak
+            this.Controls.Add(this.gMapControl);
+
+            // Harita ba lang   ayarlar 
+            gMapControl.Position = new GMap.NET.PointLatLng(40.730610, -73.935242);  // Ba lang   konumu (New York)
+            gMapControl.MinZoom = 0;   // Minimum zoom seviyesi
+            gMapControl.MaxZoom = 20;  // Maksimum zoom seviyesi
+
+
+            // Form1  zelliklerini ayarl yoruz
+            this.ClientSize = new System.Drawing.Size(800, 600);  // Form boyutunu belirliyoruz
+            this.Name = "Form1";
+            this.Text = "Harita Uygulamas ";
+            this.Load += new System.EventHandler(this.Form1_Load);
+
+            this.ResumeLayout(false);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Harita  zerinde marker ekliyoruz
+            AddMarkerAtLocation(40.730610, -73.935242, "Burada bir buton ekliyoruz!");
+
+            // Ba ka bir marker ekleyelim
+            AddMarkerAtLocation(40.740610, -73.935242, "Ba ka bir konum");
+        }
+
+        private void AddMarkerAtLocation(double lat, double lon, string description)
+        {
+            // GMap  zerinde marker olu turuyoruz
+            GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
+            marker.ToolTipText = description;
+
+            // Marker'  eklemek i in GMapOverlay kullan yoruz
+            GMapOverlay markers = new GMapOverlay("markers");
+            markers.Markers.Add(marker);
+            gMapControl.Overlays.Add(markers);
+
+            // Marker t klama olay n  i lemek i in
+            gMapControl.MouseClick += (sender, e) =>
+            {
+                // Mouse t klama olay  kontrol 
+                if (e.Button == MouseButtons.Left)
+                {
+                    // T klanan yerin koordinatlar n  kontrol ediyoruz
+                    GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
+
+                    // E er t klanan koordinat, marker' n koordinat na yak nsa
+                    if (clickPos.Lat == lat && clickPos.Lng == lon)
+                    {
+                        MessageBox.Show("T klanan yerin a  klamas : " + description);
+                    }
+                }
+            };
+        }
+
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+    }
 }
+*/
