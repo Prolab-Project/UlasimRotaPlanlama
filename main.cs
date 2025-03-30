@@ -201,54 +201,98 @@ namespace HaritaUygulamasi
             LogToTerminal("Harita yüklendi.");
         }
 
-        public void DrawRoute(List<Arac> shortestPath)
+        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2)
         {
-            if (shortestPath == null || shortestPath.Count < 2)
+            if ((shortestPath1 == null || shortestPath1.Count < 2) &&
+                (shortestPath2 == null || shortestPath2.Count < 2))
             {
-                LogToTerminal("En kısa yol bulunamadı.");
+                LogToTerminal("En kısa yollar bulunamadı.");
                 return;
             }
 
-            LogToTerminal("🚏 En Kısa Yol Rotası:");
+            LogToTerminal("🚏 En Kısa Yol Rotaları:\n");
 
-            GMapOverlay routeOverlay = new GMapOverlay("route");
-            List<PointLatLng> points = new List<PointLatLng>();
-            double totalWeight = 0; // Toplam ağırlık değişkeni
+            GMapOverlay routeOverlay1 = new GMapOverlay("route1");
+            GMapOverlay routeOverlay2 = new GMapOverlay("route2");
 
-            for (int i = 0; i < shortestPath.Count; i++)
+            List<PointLatLng> points1 = new List<PointLatLng>();
+            List<PointLatLng> points2 = new List<PointLatLng>();
+
+            int maxLength = Math.Max(shortestPath1.Count, shortestPath2.Count);
+
+            double totalWeight1 = 0;
+            double totalWeight2 = 0;
+
+            int indexWidth = 2;    // "1." için genişlik
+            int nameWidth = 22;    // Durak ismi genişliği
+            int coordWidth = 25;   // Koordinatlar genişliği
+            int typeWidth = 7;    // "Graph" veya "Graph2"
+            string separator = " || ";
+
+            for (int i = 0; i < maxLength; i++)
             {
-                var arac = shortestPath[i];
-                points.Add(new PointLatLng(arac.lat, arac.lon));
+                string stopInfo1 = i < shortestPath1.Count
+                    ? $"{(i + 1).ToString().PadRight(indexWidth)} {shortestPath1[i].name.PadRight(nameWidth)} {($"({shortestPath1[i].lat}, {shortestPath1[i].lon})").PadRight(coordWidth)} - {("Graph".PadRight(typeWidth))}"
+                    : new string(' ', indexWidth + nameWidth + coordWidth + typeWidth);
 
-                string stopInfo = $"{i + 1}. {arac.name} ({arac.lat}, {arac.lon})";
-                LogToTerminal(stopInfo);
+                string stopInfo2 = i < shortestPath2.Count
+                    ? $"{(i + 1).ToString().PadRight(indexWidth)} {shortestPath2[i].name.PadRight(nameWidth)} {($"({shortestPath2[i].lat}, {shortestPath2[i].lon})").PadRight(coordWidth)} - {("Graph2".PadRight(typeWidth))}"
+                    : new string(' ', indexWidth + nameWidth + coordWidth + typeWidth);
 
-                GMapMarker marker = new GMarkerGoogle(new PointLatLng(arac.lat, arac.lon), GMarkerGoogleType.blue);
-                marker.ToolTipText = $"Durak {i + 1}: {arac.name}";
-                routeOverlay.Markers.Add(marker);
+                LogToTerminal(stopInfo1 + separator + stopInfo2);
 
-                // Ağırlığı toplama ekle
-                if (i > 0)
+                if (i < shortestPath1.Count)
                 {
-                    totalWeight += graph.GetEdgeWeight(shortestPath[i - 1], arac); // Ağırlığı ekle
+                    var arac = shortestPath1[i];
+                    points1.Add(new PointLatLng(arac.lat, arac.lon));
+
+                    GMapMarker marker = new GMarkerGoogle(new PointLatLng(arac.lat, arac.lon), GMarkerGoogleType.blue);
+                    marker.ToolTipText = $"Graph Durak {i + 1}: {arac.name}";
+                    routeOverlay1.Markers.Add(marker);
+
+                    if (i > 0)
+                    {
+                        totalWeight1 += graph.GetEdgeWeight(shortestPath1[i - 1], arac);
+                    }
+                }
+
+                if (i < shortestPath2.Count)
+                {
+                    var arac = shortestPath2[i];
+                    points2.Add(new PointLatLng(arac.lat, arac.lon));
+
+                    GMapMarker marker = new GMarkerGoogle(new PointLatLng(arac.lat, arac.lon), GMarkerGoogleType.red);
+                    marker.ToolTipText = $"Graph2 Durak {i + 1}: {arac.name}";
+                    routeOverlay2.Markers.Add(marker);
+
+                    if (i > 0)
+                    {
+                        totalWeight2 += graph.GetEdgeWeight(shortestPath2[i - 1], arac);
+                    }
                 }
             }
 
-            GMapRoute route = new GMapRoute(points, "Rota");
-            route.Stroke = new Pen(Color.Red, 3);
-            routeOverlay.Routes.Add(route);
+            GMapRoute route1 = new GMapRoute(points1, "Rota 1");
+            route1.Stroke = new Pen(Color.Blue, 3);
+            routeOverlay1.Routes.Add(route1);
+
+            GMapRoute route2 = new GMapRoute(points2, "Rota 2");
+            route2.Stroke = new Pen(Color.Green, 3);
+            routeOverlay2.Routes.Add(route2);
 
             gMapControl.Overlays.Clear();
-            gMapControl.Overlays.Add(routeOverlay);
+            gMapControl.Overlays.Add(routeOverlay1);
+            gMapControl.Overlays.Add(routeOverlay2);
 
             gMapControl.Refresh();
 
-            LogToTerminal("📍 Rota başarıyla çizildi.");
-            LogToTerminal($"Toplam Ağırlık: {totalWeight}"); // Toplam ağırlığı yazdır
+            LogToTerminal(string.Format("Toplam Ağırlık: {0}                                             || Toplam Ağırlık: {1}", totalWeight1, totalWeight2));
+            LogToTerminal("📍 Rotalar başarıyla çizildi.");
 
-            if (points.Count > 0)
+            if (points1.Count > 0 || points2.Count > 0)
             {
-                gMapControl.ZoomAndCenterRoutes("route");
+                gMapControl.ZoomAndCenterRoutes("route1");
+                gMapControl.ZoomAndCenterRoutes("route2");
             }
         }
 
@@ -537,13 +581,11 @@ namespace HaritaUygulamasi
 
                 graph.PrintGraph();
                 //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
-                graph.PrintShortestPath(BusUmuttepe, BusOtogar);
+                //graph.PrintShortestPath(BusSekapark, BusOtogar);
 
                 Form1 form = new Form1(aracDuraklari, graph);
 
                 List<Arac> shortestPath = graph.GetShortestPath(BusUmuttepe, BusOtogar);
-                form.DrawRoute(shortestPath);
-                Application.Run(form);
 
                 Graph graph2 = new Graph();
 
@@ -626,6 +668,12 @@ namespace HaritaUygulamasi
                 }
 
                 graph2.PrintGraph();
+                List<Arac> shortestPath2 = graph2.GetShortestPath(BusUmuttepe, BusOtogar);
+                form.DrawRoutes(shortestPath, shortestPath2);
+                Application.Run(form);
+
+
+
                 //graph2.PrintShortestPath(BusSekapark, BusOtogar);
             }
         }
