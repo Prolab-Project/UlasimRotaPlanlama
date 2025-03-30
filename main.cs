@@ -150,6 +150,10 @@ namespace HaritaUygulamasi
         private GMapControl gMapControl;
         private List<Arac> aracListesi;
         private Graph graph;
+        private PointLatLng? baslangicNoktasi = null;
+        private PointLatLng? hedefNoktasi = null;
+        private Button rotaPlanlaButton;
+        private Label durumLabel;
 
         public Form1(List<Arac> arac, Graph graph = null)
         {
@@ -170,23 +174,188 @@ namespace HaritaUygulamasi
             gMapControl.Zoom = 12;
             gMapControl.ShowCenter = false;
 
+            // Durum etiketi oluştur
+            durumLabel = new Label();
+            durumLabel.Text = "Başlangıç noktasını seçmek için haritaya tıklayın";
+            durumLabel.Dock = DockStyle.Top;
+            durumLabel.Height = 30;
+            durumLabel.BackColor = Color.LightYellow;
+            durumLabel.TextAlign = ContentAlignment.MiddleCenter;
+
+            // Rota planlama butonu oluştur
+            rotaPlanlaButton = new Button();
+            rotaPlanlaButton.Text = "Rota Planla";
+            rotaPlanlaButton.Dock = DockStyle.Bottom;
+            rotaPlanlaButton.Height = 40;
+            rotaPlanlaButton.Enabled = false;
+            rotaPlanlaButton.Click += RotaPlanlaButton_Click;
+
+            // Kontrolleri forma ekle
             this.Controls.Add(gMapControl);
+            this.Controls.Add(durumLabel);
+            this.Controls.Add(rotaPlanlaButton);
 
             this.Load += new System.EventHandler(this.Form1_Load);
 
+            // Harita tıklama olayını ekle
+            gMapControl.MouseClick += GMapControl_MouseClick;
+
             this.ResumeLayout(false);
+        }
+
+        private void GMapControl_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                // Fare tıklamasının ekran koordinatlarını al
+                Point ekranKoordinati = new Point(e.X, e.Y);
+                
+                // Ekran koordinatlarını harita koordinatlarına dönüştür
+                PointLatLng tiklananNokta = gMapControl.FromLocalToLatLng(ekranKoordinati.X, ekranKoordinati.Y);
+                
+                if (baslangicNoktasi == null)
+                {
+                    // Başlangıç noktasını ayarla
+                    baslangicNoktasi = tiklananNokta;
+                    
+                    // Önce mevcut işaretçileri temizle
+                    for (int i = gMapControl.Overlays.Count - 1; i >= 0; i--)
+                    {
+                        if (gMapControl.Overlays[i].Id == "baslangic_noktasi")
+                        {
+                            gMapControl.Overlays.RemoveAt(i);
+                        }
+                    }
+                    
+                    // Yeni işaretçi ekle
+                    GMapOverlay baslangicOverlay = new GMapOverlay("baslangic_noktasi");
+                    GMarkerGoogle marker = new GMarkerGoogle(tiklananNokta, GMarkerGoogleType.blue);
+                    marker.ToolTipText = "Başlangıç Noktası";
+                    marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
+                    baslangicOverlay.Markers.Add(marker);
+                    gMapControl.Overlays.Add(baslangicOverlay);
+                    
+                    // Konsola koordinatları yazdır (hata ayıklama için)
+                    Console.WriteLine($"Başlangıç noktası: Lat={tiklananNokta.Lat}, Lng={tiklananNokta.Lng}");
+                    
+                    durumLabel.Text = "Hedef noktasını seçmek için haritaya tıklayın";
+                }
+                else if (hedefNoktasi == null)
+                {
+                    // Hedef noktasını ayarla
+                    hedefNoktasi = tiklananNokta;
+                    
+                    // Önce mevcut işaretçileri temizle
+                    for (int i = gMapControl.Overlays.Count - 1; i >= 0; i--)
+                    {
+                        if (gMapControl.Overlays[i].Id == "hedef_noktasi")
+                        {
+                            gMapControl.Overlays.RemoveAt(i);
+                        }
+                    }
+                    
+                    // Yeni işaretçi ekle
+                    GMapOverlay hedefOverlay = new GMapOverlay("hedef_noktasi");
+                    GMarkerGoogle marker = new GMarkerGoogle(tiklananNokta, GMarkerGoogleType.red);
+                    marker.ToolTipText = "Hedef Noktası";
+                    marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
+                    hedefOverlay.Markers.Add(marker);
+                    gMapControl.Overlays.Add(hedefOverlay);
+                    
+                    // Konsola koordinatları yazdır (hata ayıklama için)
+                    Console.WriteLine($"Hedef noktası: Lat={tiklananNokta.Lat}, Lng={tiklananNokta.Lng}");
+                    
+                    durumLabel.Text = "Rota planlamak için butona tıklayın";
+                    rotaPlanlaButton.Enabled = true;
+                }
+                
+                gMapControl.Refresh();
+            }
+        }
+
+        private void RotaPlanlaButton_Click(object sender, EventArgs e)
+        {
+            if (baslangicNoktasi.HasValue && hedefNoktasi.HasValue)
+            {
+                // Seçilen noktalara en yakın durakları bul
+                Arac enYakinBaslangicDuragi = BulEnYakinDurak(baslangicNoktasi.Value.Lat, baslangicNoktasi.Value.Lng);
+                Arac enYakinHedefDuragi = BulEnYakinDurak(hedefNoktasi.Value.Lat, hedefNoktasi.Value.Lng);
+
+                if (enYakinBaslangicDuragi != null && enYakinHedefDuragi != null)
+                {
+                    // Başlangıç ve hedef durakları arasındaki en kısa yolu hesapla
+                    List<Arac> enKisaYol = graph.GetShortestPath(enYakinBaslangicDuragi, enYakinHedefDuragi);
+                    
+                    // Rotayı çiz
+                    DrawRoute(enKisaYol);
+                    
+                    // Kullanıcıya bilgi ver
+                    double baslangicMesafe = mesafeHesapla.MesafeHesapla(
+                        baslangicNoktasi.Value.Lat, baslangicNoktasi.Value.Lng, 
+                        enYakinBaslangicDuragi.lat, enYakinBaslangicDuragi.lon);
+                    
+                    double hedefMesafe = mesafeHesapla.MesafeHesapla(
+                        hedefNoktasi.Value.Lat, hedefNoktasi.Value.Lng, 
+                        enYakinHedefDuragi.lat, enYakinHedefDuragi.lon);
+                    
+                    string rotaBilgisi = $"En yakın başlangıç durağı: {enYakinBaslangicDuragi.name} ({baslangicMesafe:F2} km)\n" +
+                                         $"En yakın hedef durağı: {enYakinHedefDuragi.name} ({hedefMesafe:F2} km)\n\n";
+                    
+                    if (enKisaYol.Count > 0)
+                    {
+                        rotaBilgisi += "Rota: " + string.Join(" → ", enKisaYol.Select(a => a.name));
+                    }
+                    else
+                    {
+                        rotaBilgisi += "Bu duraklar arasında rota bulunamadı.";
+                    }
+                    
+                    MessageBox.Show(rotaBilgisi, "Rota Bilgisi");
+                }
+                else
+                {
+                    MessageBox.Show("Seçilen noktalara yakın durak bulunamadı.", "Hata");
+                }
+            }
+        }
+
+        private Arac BulEnYakinDurak(double lat, double lon)
+        {
+            double minMesafe = double.MaxValue;
+            Arac enYakinDurak = null;
+
+            foreach (var durak in aracListesi)
+            {
+                double mesafe = mesafeHesapla.MesafeHesapla(lat, lon, durak.lat, durak.lon);
+                if (mesafe < minMesafe)
+                {
+                    minMesafe = mesafe;
+                    enYakinDurak = durak;
+                }
+            }
+
+            return enYakinDurak;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             foreach (var arac in aracListesi)
             {
-                AddMarkerAtLocation(arac.lat, arac.lon, arac.name);
+                AddMarkerAtLocation(arac.lat, arac.lon, arac.name, GMarkerGoogleType.green);
             }
         }
 
         public void DrawRoute(List<Arac> path)
         {
+            // Önceki rotaları temizle
+            for (int i = gMapControl.Overlays.Count - 1; i >= 0; i--)
+            {
+                if (gMapControl.Overlays[i].Id == "route")
+                {
+                    gMapControl.Overlays.RemoveAt(i);
+                }
+            }
+
             if (path == null || path.Count < 2)
                 return;
 
@@ -215,27 +384,15 @@ namespace HaritaUygulamasi
             }
         }
 
-        private void AddMarkerAtLocation(double lat, double lon, string description)
+        private void AddMarkerAtLocation(double lat, double lon, string description, GMarkerGoogleType markerType = GMarkerGoogleType.green)
         {
-            GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
+            GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), markerType);
             marker.ToolTipText = description;
+            marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
 
             GMapOverlay markers = new GMapOverlay("markers");
             markers.Markers.Add(marker);
             gMapControl.Overlays.Add(markers);
-
-            gMapControl.MouseClick += (sender, e) =>
-            {
-                if (e.Button == MouseButtons.Left)
-                {
-                    GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
-
-                    if (clickPos.Lat == lat && clickPos.Lng == lon)
-                    {
-                        MessageBox.Show("T klanan yerin a  klamas : " + description);
-                    }
-                }
-            };
         }
 
         private void AddDirectionArrows(List<PointLatLng> points, GMapOverlay overlay)
@@ -331,7 +488,7 @@ namespace HaritaUygulamasi
                         {
                             Console.WriteLine($"Aktarma durağı: {transferStop.Item1.name}");
                         }
-                    }
+                    } 
                     else if (enYakinDurak is Tramvay && hedefEnYakinDurak is Otobus)
                     {
                         var transferStop = graph.AdjacencyList[enYakinDurak].FirstOrDefault(t => t.Item1.id == "bus_otogar");
@@ -516,10 +673,6 @@ namespace HaritaUygulamasi
 
                 // Form1'i graph ile birlikte oluştur
                 Form1 form = new Form1(aracDuraklari, graph);
-
-                // Rota hesapla ve çiz
-                List<Arac> shortestPath = graph.GetShortestPath(BusUmuttepe, TramOtogar);
-                form.DrawRoute(shortestPath);
 
                 Application.Run(form);
             }
