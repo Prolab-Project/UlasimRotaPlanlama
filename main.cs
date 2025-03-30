@@ -344,7 +344,6 @@ namespace HaritaUygulamasi
                 AddMarkerAtLocation(arac.lat, arac.lon, arac.name, GMarkerGoogleType.green);
             }
         }
-
         public void DrawRoute(List<Arac> path)
         {
             // Önceki rotaları temizle
@@ -394,7 +393,6 @@ namespace HaritaUygulamasi
             markers.Markers.Add(marker);
             gMapControl.Overlays.Add(markers);
         }
-
         private void AddDirectionArrows(List<PointLatLng> points, GMapOverlay overlay)
         {
             if (points.Count < 2)
@@ -412,7 +410,6 @@ namespace HaritaUygulamasi
                 overlay.Markers.Add(arrow);
             }
         }
-
         public static class mesafeHesapla
         {
             public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
@@ -512,7 +509,6 @@ namespace HaritaUygulamasi
                         taksi.UcretHesapla();
                     }
                     graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
-
                 }
                 else
                 {
@@ -526,7 +522,6 @@ namespace HaritaUygulamasi
             [STAThread]
             static void Main()
             {
-                // Bu metodları en başta çağırın
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
@@ -583,6 +578,9 @@ namespace HaritaUygulamasi
 
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
+
+                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi);
+                //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
 
                 List<Arac> aracDuraklari = new List<Arac>();
                 aracDuraklari.AddRange(otobusDuraklari);
@@ -669,13 +667,18 @@ namespace HaritaUygulamasi
                 }
 
                 graph.PrintGraph();
-                graph.PrintShortestPath(BusUmuttepe, TramOtogar);
+                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
+                //graph.PrintShortestPath(BusSekapark, BusOtogar);
 
-                // Form1'i graph ile birlikte oluştur
                 Form1 form = new Form1(aracDuraklari, graph);
+
+                // Rota hesapla ve çiz
+                List<Arac> shortestPath = graph.GetShortestPath(BusUmuttepe, TramOtogar);
+                form.DrawRoute(shortestPath);
 
                 Application.Run(form);
             }
         }
     }
 }
+*/

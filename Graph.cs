@@ -124,7 +124,6 @@ public class Graph
 
     public List<Arac> GetShortestPath(Arac start, Arac end)
     {
-        // Dijkstra algoritması ile en kısa yolu hesapla
         Dictionary<Arac, double> distances = new Dictionary<Arac, double>();
         Dictionary<Arac, Arac> previous = new Dictionary<Arac, Arac>();
         List<Arac> nodes = new List<Arac>();
@@ -158,11 +157,9 @@ public class Graph
             }
         }
 
-        // Yolu oluştur
         List<Arac> path = new List<Arac>();
         Arac current = end;
 
-        // Eğer hedef noktasına ulaşılamadıysa boş liste döndür
         if (previous[current] == null && current != start)
         {
             return path;
@@ -174,7 +171,7 @@ public class Graph
             current = previous[current];
         }
 
-        path.Reverse(); // Başlangıçtan hedefe doğru sırala
+        path.Reverse(); 
         return path;
     }
 }
