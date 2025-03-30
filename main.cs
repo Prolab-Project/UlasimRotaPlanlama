@@ -151,6 +151,11 @@ namespace HaritaUygulamasi
         private List<Arac> aracListesi;
         private Graph graph;
         private RichTextBox terminalBox;
+        private TextBox startLatTextBox;
+        private TextBox startLonTextBox;
+        private TextBox targetLatTextBox;
+        private TextBox targetLonTextBox;
+        private Button calculateRouteButton;
 
         public Form1(List<Arac> arac, Graph graph = null)
         {
@@ -188,6 +193,23 @@ namespace HaritaUygulamasi
             this.Controls.Add(gMapControl);
             this.Controls.Add(terminalPanel);
 
+            // Kullanıcıdan koordinat girişi için TextBox'lar ekleyelim
+            startLatTextBox = new TextBox { PlaceholderText = "Mevcut Enlem (lat)", Dock = DockStyle.Top };
+            startLonTextBox = new TextBox { PlaceholderText = "Mevcut Boylam (lon)", Dock = DockStyle.Top };
+            targetLatTextBox = new TextBox { PlaceholderText = "Hedef Enlem (lat)", Dock = DockStyle.Top };
+            targetLonTextBox = new TextBox { PlaceholderText = "Hedef Boylam (lon)", Dock = DockStyle.Top };
+            calculateRouteButton = new Button { Text = "Rota Hesapla", Dock = DockStyle.Top };
+
+            // Butona tıklama olayını ekleyelim
+            calculateRouteButton.Click += CalculateRouteButton_Click;
+
+            // Kontrolleri forma ekleyelim
+            this.Controls.Add(calculateRouteButton);
+            this.Controls.Add(targetLonTextBox);
+            this.Controls.Add(targetLatTextBox);
+            this.Controls.Add(startLonTextBox);
+            this.Controls.Add(startLatTextBox);
+
             this.Load += new System.EventHandler(this.Form1_Load);
         }
 
@@ -199,6 +221,23 @@ namespace HaritaUygulamasi
             }
 
             LogToTerminal("Harita yüklendi.");
+        }
+
+        private void CalculateRouteButton_Click(object sender, EventArgs e)
+        {
+            if (double.TryParse(startLatTextBox.Text, out double startLat) &&
+                double.TryParse(startLonTextBox.Text, out double startLon) &&
+                double.TryParse(targetLatTextBox.Text, out double targetLat) &&
+                double.TryParse(targetLonTextBox.Text, out double targetLon))
+            {
+                // En yakın durakları bul
+                Taksi taksi = new Taksi();
+                yakinDurakBul.EnYakinDuragiBul(aracListesi, taksi, graph, startLat, startLon, targetLat, targetLon);
+            }
+            else
+            {
+                MessageBox.Show("Lütfen geçerli koordinatlar girin.");
+            }
         }
 
         public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2)
@@ -344,20 +383,8 @@ namespace HaritaUygulamasi
 
         public static class yakinDurakBul
         {
-            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi, Graph graph)
+            public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi, Graph graph, double lat_konum, double lon_konum, double hedef_lat, double hedef_lon)
             {
-                Console.Write(" mevcut enlem (lat): ");
-                double lat_konum = Convert.ToDouble(Console.ReadLine());
-
-                Console.Write(" mevcut boylam (lon): ");
-                double lon_konum = Convert.ToDouble(Console.ReadLine());
-
-                Console.Write(" hedef enlem (lat): ");
-                double hedef_lat = Convert.ToDouble(Console.ReadLine());
-
-                Console.Write(" hedef boylam (lon): ");
-                double hedef_lon = Convert.ToDouble(Console.ReadLine());
-
                 double minMesafe = double.MaxValue;
                 double minMesafeHedef = double.MaxValue;
                 Arac enYakinDurak = null;
@@ -391,36 +418,7 @@ namespace HaritaUygulamasi
                     Console.WriteLine($"En yakin baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklıkta.");
                     Console.WriteLine($"En yakin hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklıkta.");
 
-                    if (enYakinDurak is Otobus && hedefEnYakinDurak is Tramvay)
-                    {
-                        var transferStop = graph.AdjacencyList[enYakinDurak].FirstOrDefault(t => t.Item1.id == "tram_otogar");
-                        if (transferStop != default)
-                        {
-                            Console.WriteLine($"Aktarma durağı: {transferStop.Item1.name}");
-                        }
-                    }
-                    else if (enYakinDurak is Tramvay && hedefEnYakinDurak is Otobus)
-                    {
-                        var transferStop = graph.AdjacencyList[enYakinDurak].FirstOrDefault(t => t.Item1.id == "bus_otogar");
-                        if (transferStop != default)
-                        {
-                            Console.WriteLine($"Aktarma durağı: {transferStop.Item1.name}");
-                        }
-                    }
-
-                    if (minMesafe > 3)
-                    {
-                        Console.WriteLine("Mesafe 3 km'den fazla, taksi kullanman z  nerilir.");
-                        taksi.MesafeHesaplama(lat_konum, lon_konum, enYakinDurak.lat, enYakinDurak.lon);
-                        taksi.UcretHesapla();
-                    }
-
-                    if (minMesafeHedef > 3)
-                    {
-                        Console.WriteLine("Hedefe Mesafe 3 km'den fazla, taksi kullanman z  nerilir.");
-                        taksi.MesafeHesaplama(hedef_lat, hedef_lon, hedefEnYakinDurak.lat, hedefEnYakinDurak.lon);
-                        taksi.UcretHesapla();
-                    }
+                    // Rota çizme işlemi
                     graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
                 }
                 else
