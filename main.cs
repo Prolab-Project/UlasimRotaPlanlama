@@ -160,24 +160,21 @@ namespace HaritaUygulamasi
             this.Width = 1000;
             this.Height = 600;
 
-            // Terminal Paneli
             Panel terminalPanel = new Panel();
             terminalPanel.Dock = DockStyle.Top;
             terminalPanel.Height = 100;
             terminalPanel.BackColor = Color.Black;
 
-            // Terminal Kutusu (Not Alma Alanı)
             terminalBox = new RichTextBox();
             terminalBox.Dock = DockStyle.Fill;
             terminalBox.BackColor = Color.White;
-            terminalBox.ForeColor = Color.Lime;
+            terminalBox.ForeColor = Color.Black;
             terminalBox.Font = new Font("Consolas", 10);
             terminalBox.Multiline = true;
             terminalBox.ScrollBars = RichTextBoxScrollBars.Vertical;
 
             terminalPanel.Controls.Add(terminalBox);
 
-            // Harita
             gMapControl = new GMapControl();
             gMapControl.Dock = DockStyle.Fill;
             gMapControl.MapProvider = GMapProviders.GoogleMap;
@@ -204,40 +201,52 @@ namespace HaritaUygulamasi
             LogToTerminal("Harita yüklendi.");
         }
 
-        private void LogToTerminal(string message)
+        public void DrawRoute(List<Arac> shortestPath)
         {
-            terminalBox.AppendText("> " + message + Environment.NewLine);
-        }
-
-
-        public void DrawRoute(List<Arac> path)
-        {
-            if (path == null || path.Count < 2)
+            if (shortestPath == null || shortestPath.Count < 2)
+            {
+                LogToTerminal("En kısa yol bulunamadı.");
                 return;
+            }
+
+            LogToTerminal("🚏 En Kısa Yol Rotası:");
 
             GMapOverlay routeOverlay = new GMapOverlay("route");
-
             List<PointLatLng> points = new List<PointLatLng>();
-            foreach (var arac in path)
+
+            for (int i = 0; i < shortestPath.Count; i++)
             {
+                var arac = shortestPath[i];
                 points.Add(new PointLatLng(arac.lat, arac.lon));
+
+                string stopInfo = $"{i + 1}. {arac.name} ({arac.lat}, {arac.lon})";
+                LogToTerminal(stopInfo);
+
+                GMapMarker marker = new GMarkerGoogle(new PointLatLng(arac.lat, arac.lon), GMarkerGoogleType.blue);
+                marker.ToolTipText = $"Durak {i + 1}: {arac.name}";
+                routeOverlay.Markers.Add(marker);
             }
 
             GMapRoute route = new GMapRoute(points, "Rota");
             route.Stroke = new Pen(Color.Red, 3);
-
             routeOverlay.Routes.Add(route);
 
-            AddDirectionArrows(points, routeOverlay);
-
+            gMapControl.Overlays.Clear();
             gMapControl.Overlays.Add(routeOverlay);
 
             gMapControl.Refresh();
+
+            LogToTerminal("📍 Rota başarıyla çizildi.");
 
             if (points.Count > 0)
             {
                 gMapControl.ZoomAndCenterRoutes("route");
             }
+        }
+
+        private void LogToTerminal(string message)
+        {
+            terminalBox.AppendText("> " + message + Environment.NewLine);
         }
 
         private void AddMarkerAtLocation(double lat, double lon, string description)
@@ -262,24 +271,6 @@ namespace HaritaUygulamasi
                 }
             };
         }
-        private void AddDirectionArrows(List<PointLatLng> points, GMapOverlay overlay)
-        {
-            if (points.Count < 2)
-                return;
-
-            for (int i = 0; i < points.Count - 1; i += 1)
-            {
-                double midLat = (points[i].Lat + points[i + 1].Lat) / 2;
-                double midLng = (points[i].Lng + points[i + 1].Lng) / 2;
-
-                GMapMarker arrow = new GMarkerGoogle(
-                    new PointLatLng(midLat, midLng),
-                    GMarkerGoogleType.arrow);
-
-                overlay.Markers.Add(arrow);
-            }
-        }
-
         public static class mesafeHesapla
         {
             public static double MesafeHesapla(double lat, double lon, double durak_lat, double durak_lon)
@@ -538,11 +529,11 @@ namespace HaritaUygulamasi
 
                 graph.PrintGraph();
                 //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
-                //graph.PrintShortestPath(BusSekapark, BusOtogar);
+                graph.PrintShortestPath(BusSekapark, BusOtogar);
 
                 Form1 form = new Form1(aracDuraklari, graph);
 
-                List<Arac> shortestPath = graph.GetShortestPath(BusSekapark, BusOtogar);
+                List<Arac> shortestPath = graph.GetShortestPath(BusUmuttepe, BusOtogar);
                 form.DrawRoute(shortestPath);
                 Application.Run(form);
 
@@ -627,6 +618,7 @@ namespace HaritaUygulamasi
                 }
 
                 graph2.PrintGraph();
+                //graph2.PrintShortestPath(BusSekapark, BusOtogar);
             }
         }
     }
