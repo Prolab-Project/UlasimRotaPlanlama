@@ -213,6 +213,7 @@ namespace HaritaUygulamasi
 
             GMapOverlay routeOverlay = new GMapOverlay("route");
             List<PointLatLng> points = new List<PointLatLng>();
+            double totalWeight = 0; // Toplam ağırlık değişkeni
 
             for (int i = 0; i < shortestPath.Count; i++)
             {
@@ -225,6 +226,12 @@ namespace HaritaUygulamasi
                 GMapMarker marker = new GMarkerGoogle(new PointLatLng(arac.lat, arac.lon), GMarkerGoogleType.blue);
                 marker.ToolTipText = $"Durak {i + 1}: {arac.name}";
                 routeOverlay.Markers.Add(marker);
+
+                // Ağırlığı toplama ekle
+                if (i > 0)
+                {
+                    totalWeight += graph.GetEdgeWeight(shortestPath[i - 1], arac); // Ağırlığı ekle
+                }
             }
 
             GMapRoute route = new GMapRoute(points, "Rota");
@@ -237,6 +244,7 @@ namespace HaritaUygulamasi
             gMapControl.Refresh();
 
             LogToTerminal("📍 Rota başarıyla çizildi.");
+            LogToTerminal($"Toplam Ağırlık: {totalWeight}"); // Toplam ağırlığı yazdır
 
             if (points.Count > 0)
             {
@@ -529,7 +537,7 @@ namespace HaritaUygulamasi
 
                 graph.PrintGraph();
                 //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
-                graph.PrintShortestPath(BusSekapark, BusOtogar);
+                graph.PrintShortestPath(BusUmuttepe, BusOtogar);
 
                 Form1 form = new Form1(aracDuraklari, graph);
 

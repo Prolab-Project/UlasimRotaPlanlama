@@ -174,4 +174,18 @@ public class Graph
         path.Reverse(); 
         return path;
     }
+
+    public double GetEdgeWeight(Arac from, Arac to)
+    {
+        if (AdjacencyList.ContainsKey(from))
+        {
+            var edges = AdjacencyList[from];
+            var edge = edges.FirstOrDefault(e => e.Item1 == to);
+            if (edge != default)
+            {
+                return edge.Item2; // Ağırlığı döndür
+            }
+        }
+        throw new Exception($"Hata: {from.id} ile {to.id} arasında bir bağlantı bulunamadı!");
+    }
 }
