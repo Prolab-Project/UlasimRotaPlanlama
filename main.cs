@@ -330,7 +330,16 @@ namespace HaritaUygulamasi
 
             gMapControl.Refresh();
 
-            LogToTerminal(string.Format("Toplam Ağırlık: {0}                                             || Toplam Ağırlık: {1}", totalWeight1, totalWeight2));
+            Yolcu ogrenci = new Ogrenci();
+            Yolcu yasli = new Yasli();
+            Yolcu genel = new Genel();
+
+            double indirimliUcretOgrenci = ogrenci.UcretHesapla(totalWeight1);
+            double indirimliUcretYasli = yasli.UcretHesapla(totalWeight1);
+            double indirimliUcretGenel = genel.UcretHesapla(totalWeight1);
+
+
+            LogToTerminal(string.Format("Toplam ücret: {0} \n TL Indirimli Ogrenci Ucreti : {2} TL \n Indirimli Yasli Ucreti : {3} TL                                           || Toplam süre: {1}", totalWeight1, totalWeight2, indirimliUcretOgrenci, indirimliUcretYasli));
             LogToTerminal("📍 Rotalar başarıyla çizildi.");
 
             if (points1.Count > 0 || points2.Count > 0)
