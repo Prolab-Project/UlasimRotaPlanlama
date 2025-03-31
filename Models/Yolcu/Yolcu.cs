@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Yolcu
 {
-    abstract class Yolcu
+    public abstract class Yolcu
     {
         public float indirimOrani; 
+
+        public virtual double UcretHesapla(double ucret)
+        {
+            return ucret * (1 - indirimOrani);
+        }
     }
 }

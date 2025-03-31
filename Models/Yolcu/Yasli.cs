@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Yolcu
 {
-    internal class Yasli :  Yolcu , Indirim
+    internal class Yasli : Yolcu
     {
-        void Indirim.indirim()
+        public Yasli()
         {
-            throw new NotImplementedException();
+            indirimOrani = 0.30f; // %30 indirim
         }
     }
 }

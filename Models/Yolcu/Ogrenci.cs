@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace UlasimRotaPlanlama.Models.Yolcu
 {
-    internal class Ogrenci : Yolcu , Indirim
+    internal class Ogrenci : Yolcu
     {
-        void Indirim.indirim()
+        public Ogrenci()
         {
-            throw new NotImplementedException();
+            indirimOrani = 0.50f; // %50 indirim
         }
     }
 }
