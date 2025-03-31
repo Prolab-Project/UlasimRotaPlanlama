@@ -13,6 +13,7 @@ using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
+using System.Threading;
 using System.Drawing;
 
 public static class jsonreader
@@ -200,7 +201,6 @@ namespace HaritaUygulamasi
             targetLonTextBox = new TextBox { PlaceholderText = "Hedef Boylam (lon)", Dock = DockStyle.Top };
             calculateRouteButton = new Button { Text = "Rota Hesapla", Dock = DockStyle.Top };
 
-            // Butona tıklama olayını ekleyelim
             calculateRouteButton.Click += CalculateRouteButton_Click;
 
             // Kontrolleri forma ekleyelim
@@ -232,6 +232,7 @@ namespace HaritaUygulamasi
             {
                 // En yakın durakları bul
                 Taksi taksi = new Taksi();
+                Console.WriteLine("nsralkhaernogan");
                 yakinDurakBul.EnYakinDuragiBul(aracListesi, taksi, graph, startLat, startLon, targetLat, targetLon);
             }
             else
@@ -383,6 +384,11 @@ namespace HaritaUygulamasi
 
         public static class yakinDurakBul
         {
+            public static List<Arac> shortestPath ;
+            public static List<Arac> shortestPath2;
+            public static Graph graph = new Graph();
+            public static Graph graph2 = new Graph();
+
             public static void EnYakinDuragiBul(List<Arac> Durak, Taksi taksi, Graph graph, double lat_konum, double lon_konum, double hedef_lat, double hedef_lon)
             {
                 double minMesafe = double.MaxValue;
@@ -412,20 +418,25 @@ namespace HaritaUygulamasi
                         hedefEnYakinDurak = durak;
                     }
                 }
-
+                shortestPath = graph.GetShortestPath(enYakinDurak, hedefEnYakinDurak);
+                shortestPath2 = graph2.GetShortestPath(enYakinDurak, hedefEnYakinDurak);
                 if (enYakinDurak != null)
                 {
                     Console.WriteLine($"En yakin baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklıkta.");
                     Console.WriteLine($"En yakin hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklıkta.");
 
                     // Rota çizme işlemi
-                    graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
+                    //graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
                 }
                 else
                 {
                     Console.WriteLine("Yakınlarda otobüs durağı bulunamadı.");
                 }
             }
+        }
+        public static class GlobalData
+        {
+            public static List<Arac> aracDuraklari = new List<Arac>();
         }
 
         internal static class main
@@ -493,20 +504,17 @@ namespace HaritaUygulamasi
                 //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi);
                 //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
 
-                List<Arac> aracDuraklari = new List<Arac>();
-                aracDuraklari.AddRange(otobusDuraklari);
-                aracDuraklari.AddRange(tramDuraklari);
-
-                Graph graph = new Graph();
+                GlobalData.aracDuraklari.AddRange(otobusDuraklari);
+                GlobalData.aracDuraklari.AddRange(tramDuraklari);
 
                 foreach (var durak in otobusDuraklari)
                 {
-                    graph.AddNode(durak);
+                   yakinDurakBul.graph.AddNode(durak);
                 }
 
                 foreach (var durak in tramDuraklari)
                 {
-                    graph.AddNode(durak);
+                    yakinDurakBul.graph.AddNode(durak);
                 }
 
                 var validStops = new List<string>
@@ -539,11 +547,11 @@ namespace HaritaUygulamasi
                             continue;
                         }
 
-                        var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+                        var matchingStop = GlobalData.aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
                         if (matchingStop != null && i < ucretlist.Count)
                         {
-                            graph.AddEdge(otobus, matchingStop, ucretlist[i]);
+                            yakinDurakBul.graph.AddEdge(otobus, matchingStop, ucretlist[i]);
                             i++;
                         }
                     }
@@ -563,11 +571,11 @@ namespace HaritaUygulamasi
                             continue;
                         }
 
-                        var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+                        var matchingStop = GlobalData.aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
                         if (matchingStop != null && i < ucretlist.Count)
                         {
-                            graph.AddEdge(tramvay, matchingStop, ucretlist[i]);
+                            yakinDurakBul.graph.AddEdge(tramvay, matchingStop, ucretlist[i]);
                             i++;
                         }
                         else
@@ -577,24 +585,18 @@ namespace HaritaUygulamasi
                     }
                 }
 
-                graph.PrintGraph();
+                yakinDurakBul.graph.PrintGraph();
                 //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
                 //graph.PrintShortestPath(BusSekapark, BusOtogar);
 
-                Form1 form = new Form1(aracDuraklari, graph);
-
-                List<Arac> shortestPath = graph.GetShortestPath(BusUmuttepe, BusOtogar);
-
-                Graph graph2 = new Graph();
-
                 foreach (var durak in otobusDuraklari)
                 {
-                    graph2.AddNode(durak);
+                    yakinDurakBul.graph2.AddNode(durak);
                 }
 
                 foreach (var durak in tramDuraklari)
                 {
-                    graph2.AddNode(durak);
+                    yakinDurakBul.graph2.AddNode(durak);
                 }
 
                 int a = 0;
@@ -617,11 +619,11 @@ namespace HaritaUygulamasi
 
                         if (!string.IsNullOrEmpty(nextStop))
                         {
-                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+                            var matchingStop = GlobalData.aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
                             if (matchingStop != null && a < surelist.Count)
                             {
-                                graph2.AddEdge(otobus, matchingStop, surelist[a]);
+                                yakinDurakBul.graph2.AddEdge(otobus, matchingStop, surelist[a]);
                                 a++;
                             }
                             else
@@ -650,11 +652,11 @@ namespace HaritaUygulamasi
 
                         if (!string.IsNullOrEmpty(nextStop))
                         {
-                            var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
+                            var matchingStop = GlobalData.aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
 
                             if (matchingStop != null && a < surelist.Count)
                             {
-                                graph2.AddEdge(tramvay, matchingStop, surelist[a]);
+                                yakinDurakBul.graph2.AddEdge(tramvay, matchingStop, surelist[a]);
                                 a++;
                             }
                             else
@@ -664,108 +666,14 @@ namespace HaritaUygulamasi
                         }
                     }
                 }
+                Form1 form = new Form1(GlobalData.aracDuraklari, yakinDurakBul.graph);
 
-                graph2.PrintGraph();
-                List<Arac> shortestPath2 = graph2.GetShortestPath(BusUmuttepe, BusOtogar);
-                form.DrawRoutes(shortestPath, shortestPath2);
-                Application.Run(form);
-
-
-
-                //graph2.PrintShortestPath(BusSekapark, BusOtogar);
+                //yakinDurakBul.graph2.PrintGraph();
+                form.DrawRoutes(yakinDurakBul.shortestPath, yakinDurakBul.shortestPath2);
+                Application.Run(form);                
+                
+                //graph2.PrintShortestPath(BusUmuttepe, BusOtogar);
             }
         }
     }
-}/*
-using System;
-using System.Windows.Forms;
-using GMap.NET;
-using GMap.NET.WindowsForms;
-using GMap.NET.MapProviders;
-using GMap.NET.WindowsForms.Markers;
-
-namespace HaritaUygulamasi
-{
-    public partial class Form1 : Form
-    {
-        private GMapControl gMapControl;
-
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            this.gMapControl = new GMapControl();
-            this.SuspendLayout();
-
-            // gMapControl  zelliklerini ayarl yoruz
-            this.gMapControl.Dock = DockStyle.Fill;
-            this.gMapControl.MapProvider = GoogleMapProvider.Instance;  // Google haritas  kullan yoruz
-            GMaps.Instance.Mode = AccessMode.ServerOnly;  // Yaln zca sunucu  zerinden harita verisi al nacak
-            this.Controls.Add(this.gMapControl);
-
-            // Harita ba lang   ayarlar 
-            gMapControl.Position = new GMap.NET.PointLatLng(40.730610, -73.935242);  // Ba lang   konumu (New York)
-            gMapControl.MinZoom = 0;   // Minimum zoom seviyesi
-            gMapControl.MaxZoom = 20;  // Maksimum zoom seviyesi
-
-
-            // Form1  zelliklerini ayarl yoruz
-            this.ClientSize = new System.Drawing.Size(800, 600);  // Form boyutunu belirliyoruz
-            this.Name = "Form1";
-            this.Text = "Harita Uygulamas ";
-            this.Load += new System.EventHandler(this.Form1_Load);
-
-            this.ResumeLayout(false);
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // Harita  zerinde marker ekliyoruz
-            AddMarkerAtLocation(40.730610, -73.935242, "Burada bir buton ekliyoruz!");
-
-            // Ba ka bir marker ekleyelim
-            AddMarkerAtLocation(40.740610, -73.935242, "Ba ka bir konum");
-        }
-
-        private void AddMarkerAtLocation(double lat, double lon, string description)
-        {
-            // GMap  zerinde marker olu turuyoruz
-            GMapMarker marker = new GMarkerGoogle(new GMap.NET.PointLatLng(lat, lon), GMarkerGoogleType.green);
-            marker.ToolTipText = description;
-
-            // Marker'  eklemek i in GMapOverlay kullan yoruz
-            GMapOverlay markers = new GMapOverlay("markers");
-            markers.Markers.Add(marker);
-            gMapControl.Overlays.Add(markers);
-
-            // Marker t klama olay n  i lemek i in
-            gMapControl.MouseClick += (sender, e) =>
-            {
-                // Mouse t klama olay  kontrol 
-                if (e.Button == MouseButtons.Left)
-                {
-                    // T klanan yerin koordinatlar n  kontrol ediyoruz
-                    GMap.NET.PointLatLng clickPos = gMapControl.FromLocalToLatLng(e.X, e.Y);
-
-                    // E er t klanan koordinat, marker' n koordinat na yak nsa
-                    if (clickPos.Lat == lat && clickPos.Lng == lon)
-                    {
-                        MessageBox.Show("T klanan yerin a  klamas : " + description);
-                    }
-                }
-            };
-        }
-
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
-        }
-    }
 }
-*/
