@@ -62,14 +62,14 @@ namespace UlasimRotaPlanlama.Models.Arac
             }   
         }
 
-        public void UcretHesapla()
+        public double UcretHesapla()
         {
-            if(taksi_bin == true)
-            {
+            
                 //Console.WriteLine(costPerKm);
                 toplamucret = costPerKm * (mesafe );
                 Console.WriteLine(toplamucret);
-            }
+                
+            return toplamucret;
         }
     }
 }

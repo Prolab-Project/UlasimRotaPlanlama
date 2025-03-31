@@ -10,6 +10,6 @@ namespace UlasimRotaPlanlama.Models
     {
         void DurakBilgisi();
         void MesafeHesaplama(double lat, double lon, double durak_lat, double durak_lon);
-        void UcretHesapla();
+        double UcretHesapla();
     }
 }

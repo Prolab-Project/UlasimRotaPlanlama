@@ -17,6 +17,7 @@ using System.Threading;
 using System.Drawing;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Windows.Forms;
+using System.Runtime.CompilerServices;
 
 public static class jsonreader
 {
@@ -196,7 +197,6 @@ namespace HaritaUygulamasi
             this.Controls.Add(gMapControl);
             this.Controls.Add(terminalPanel);
 
-            // Kullanıcıdan koordinat girişi için TextBox'lar ekleyelim
             startLatTextBox = new TextBox { PlaceholderText = "Mevcut Enlem (lat)", Dock = DockStyle.Top };
             startLonTextBox = new TextBox { PlaceholderText = "Mevcut Boylam (lon)", Dock = DockStyle.Top };
             targetLatTextBox = new TextBox { PlaceholderText = "Hedef Enlem (lat)", Dock = DockStyle.Top };
@@ -205,7 +205,6 @@ namespace HaritaUygulamasi
 
             calculateRouteButton.Click += CalculateRouteButton_Click;
 
-            // Kontrolleri forma ekleyelim
             this.Controls.Add(calculateRouteButton);
             this.Controls.Add(targetLonTextBox);
             this.Controls.Add(targetLatTextBox);
@@ -233,19 +232,15 @@ namespace HaritaUygulamasi
                 double.TryParse(targetLonTextBox.Text, out double targetLon))
             {
                 coordinates = $"{startLat}/{startLon}/{targetLat}/{targetLon}";
-                // En yakın durakları bul
-                /*
-                                Taksi taksi = new Taksi();
-                                Console.WriteLine("nsralkhaernogan");
-                                yakinDurakBul.EnYakinDuragiBul(aracListesi, taksi, graph, startLat, startLon, targetLat, targetLon);*/
             }
             else
             {
                 MessageBox.Show("Lütfen geçerli koordinatlar girin.");
             }
         }
-
-        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2)
+        public static double totalWeight1 = 0;
+        public static double totalWeight2 = 0;
+        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2 , double taksiucreti)
         {
             if ((shortestPath1 == null || shortestPath1.Count < 2) &&
                 (shortestPath2 == null || shortestPath2.Count < 2))
@@ -263,9 +258,6 @@ namespace HaritaUygulamasi
             List<PointLatLng> points2 = new List<PointLatLng>();
 
             int maxLength = Math.Max(shortestPath1.Count, shortestPath2.Count);
-
-            double totalWeight1 = 0;
-            double totalWeight2 = 0;
 
             int indexWidth = 2;    // "1." için genişlik
             int nameWidth = 22;    // Durak ismi genişliği
@@ -334,12 +326,11 @@ namespace HaritaUygulamasi
             Yolcu yasli = new Yasli();
             Yolcu genel = new Genel();
 
-            double indirimliUcretOgrenci = ogrenci.UcretHesapla(totalWeight1);
-            double indirimliUcretYasli = yasli.UcretHesapla(totalWeight1);
-            double indirimliUcretGenel = genel.UcretHesapla(totalWeight1);
+            double indirimliUcretOgrenci = ogrenci.UcretHesapla(totalWeight1) + taksiucreti;
+            double indirimliUcretYasli = yasli.UcretHesapla(totalWeight1) + taksiucreti;
+            double indirimliUcretGenel = genel.UcretHesapla(totalWeight1) + taksiucreti;
 
-
-            LogToTerminal(string.Format("Toplam ücret: {0} \n TL Indirimli Ogrenci Ucreti : {2} TL \n Indirimli Yasli Ucreti : {3} TL                                           || Toplam süre: {1}", totalWeight1, totalWeight2, indirimliUcretOgrenci, indirimliUcretYasli));
+            LogToTerminal(string.Format("Toplam ücret: {0} \n TL Indirimli Ogrenci Ucreti : {2} TL \n Indirimli Yasli Ucreti : {3} TL                                           || Toplam süre: {1}", totalWeight1+taksiucreti , totalWeight2+taksiucreti , indirimliUcretOgrenci, indirimliUcretYasli));
             LogToTerminal("📍 Rotalar başarıyla çizildi.");
 
             if (points1.Count > 0 || points2.Count > 0)
@@ -439,6 +430,13 @@ namespace HaritaUygulamasi
                         hedefEnYakinDurak = durak;
                     }
                 }
+                 taksi.mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum , enYakinDurak.lat , enYakinDurak.lon);
+                double taksiucreti = 0;
+                if(taksi.mesafe > 3)
+                {
+                    taksiucreti = taksi.UcretHesapla() + taksiucreti;
+                }
+
                 shortestPath = graph.GetShortestPath(enYakinDurak, hedefEnYakinDurak);
                 shortestPath2 = graph2.GetShortestPath(enYakinDurak, hedefEnYakinDurak);
 
@@ -446,16 +444,13 @@ namespace HaritaUygulamasi
                 {
                     Console.WriteLine($"En yakin baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklıkta.");
                     Console.WriteLine($"En yakin hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklıkta.");
-
-                    // Rota çizme işlemi
+                    totalWeight1 = totalWeight1;
                     if (Application.OpenForms["Form1"] == null)
                     {
                         Form1 yeniForm = new Form1(Durak, graph);
-                        yeniForm.DrawRoutes(shortestPath, shortestPath2);
+                        yeniForm.DrawRoutes(shortestPath, shortestPath2 , taksiucreti);
                         Application.Run(yeniForm);
                     }
-
-                    //graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
                 }
                 else
                 {
@@ -526,8 +521,6 @@ namespace HaritaUygulamasi
                 Tramvay TramHalkevi = TramSinifOlustur.TramvayOlustur(TramvayData[3].ToString());
                 tramDuraklari.Add(TramHalkevi);
 
-                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi);
-                //yakinDurakBul.EnYakinDuragiBul(tramDuraklari, taksi);
                 List<Arac> aracDuraklari = new List<Arac>();
 
                 aracDuraklari.AddRange(otobusDuraklari);
