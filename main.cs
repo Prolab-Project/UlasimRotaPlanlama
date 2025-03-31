@@ -215,7 +215,6 @@ namespace HaritaUygulamasi
             this.Load += new System.EventHandler(this.Form1_Load);
 
         }
-        public string coordinates;
         private void Form1_Load(object sender, EventArgs e)
         {
             foreach (var arac in aracListesi)
@@ -225,7 +224,7 @@ namespace HaritaUygulamasi
 
             LogToTerminal("Harita yüklendi.");
         }
-
+        public string coordinates;
         private void CalculateRouteButton_Click(object sender, EventArgs e)
         {
             if (double.TryParse(startLatTextBox.Text, out double startLat) &&
@@ -233,12 +232,12 @@ namespace HaritaUygulamasi
                 double.TryParse(targetLatTextBox.Text, out double targetLat) &&
                 double.TryParse(targetLonTextBox.Text, out double targetLon))
             {
-                // En yakın durakları bul
                 coordinates = $"{startLat}/{startLon}/{targetLat}/{targetLon}";
-/*
-                Taksi taksi = new Taksi();
-                Console.WriteLine("nsralkhaernogan");
-                yakinDurakBul.EnYakinDuragiBul(aracListesi, taksi, graph, startLat, startLon, targetLat, targetLon);*/
+                // En yakın durakları bul
+                /*
+                                Taksi taksi = new Taksi();
+                                Console.WriteLine("nsralkhaernogan");
+                                yakinDurakBul.EnYakinDuragiBul(aracListesi, taksi, graph, startLat, startLon, targetLat, targetLon);*/
             }
             else
             {
@@ -343,8 +342,16 @@ namespace HaritaUygulamasi
 
         private void LogToTerminal(string message)
         {
-            terminalBox.AppendText("> " + message + Environment.NewLine);
+            if (terminalBox != null && !terminalBox.IsDisposed)
+            {
+                terminalBox.AppendText("> " + message + Environment.NewLine);
+            }
+            else
+            {
+                Console.WriteLine("Hata: terminalBox nesnesi kapatılmış.");
+            }
         }
+
 
         private void AddMarkerAtLocation(double lat, double lon, string description)
         {
@@ -425,15 +432,20 @@ namespace HaritaUygulamasi
                 }
                 shortestPath = graph.GetShortestPath(enYakinDurak, hedefEnYakinDurak);
                 shortestPath2 = graph2.GetShortestPath(enYakinDurak, hedefEnYakinDurak);
+
                 if (enYakinDurak != null)
                 {
                     Console.WriteLine($"En yakin baslangic duragi: {enYakinDurak.name}, {minMesafe:F2} km uzaklıkta.");
                     Console.WriteLine($"En yakin hedef duragi: {hedefEnYakinDurak.name}, {minMesafeHedef:F2} km uzaklıkta.");
 
                     // Rota çizme işlemi
-                    Application.Run(form);
-                    form.DrawRoutes(shortestPath, shortestPath2);
-                    
+                    if (Application.OpenForms["Form1"] == null)
+                    {
+                        Form1 yeniForm = new Form1(Durak, graph);
+                        yeniForm.DrawRoutes(shortestPath, shortestPath2);
+                        Application.Run(yeniForm);
+                    }
+
                     //graph.PrintShortestPath(enYakinDurak, hedefEnYakinDurak);
                 }
                 else
@@ -672,12 +684,9 @@ namespace HaritaUygulamasi
                     }
                 }
                 Form1 form = new Form1(aracDuraklari, yakinDurakBul.graph);
+                Application.Run(form);
 
-                //yakinDurakBul.graph2.PrintGraph();
-                form.coordinates ="40,77536/29,97220/40,76016/29,90662";
-
-
-            Console.WriteLine("jnskljg");
+                Console.WriteLine("jnskljg");
                 string[] value = form.coordinates.Split("/");
                 double startLat = Convert.ToDouble(value[0]);
                 double startLon = Convert.ToDouble(value[1]);
