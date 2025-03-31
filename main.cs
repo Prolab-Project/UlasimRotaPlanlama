@@ -240,7 +240,7 @@ namespace HaritaUygulamasi
         }
         public static double totalWeight1 = 0;
         public static double totalWeight2 = 0;
-        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2 , double taksiucreti)
+        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2 , double taksiucreti,double lat_konum , double lon_konum)
         {
             if ((shortestPath1 == null || shortestPath1.Count < 2) &&
                 (shortestPath2 == null || shortestPath2.Count < 2))
@@ -277,12 +277,26 @@ namespace HaritaUygulamasi
 
                 LogToTerminal(stopInfo1 + separator + stopInfo2);
 
+                if (shortestPath1.Count > 0)
+                {
+                    var firstStop = shortestPath1[0];
+                    points1.Insert(0, new PointLatLng(lat_konum, lon_konum)); // Başlangıç konumunu ekle
+                    GMapMarker startMarker = new GMarkerGoogle(new PointLatLng(lat_konum, lon_konum), GMarkerGoogleType.yellow);
+                    startMarker.ToolTipText = "Başlangıç Konumu";
+                    routeOverlay1.Markers.Add(startMarker);
+
+                    // Başlangıç konumu ile ilk durak arasındaki çizgiyi çiz
+                    GMapRoute startToFirstStop = new GMapRoute(new List<PointLatLng> { new PointLatLng(lat_konum, lon_konum), new PointLatLng(firstStop.lat, firstStop.lon) }, "Başlangıç - İlk Durak");
+                    startToFirstStop.Stroke = new Pen(Color.Yellow, 2);
+                    routeOverlay1.Routes.Add(startToFirstStop);
+                }
+
                 if (i < shortestPath1.Count)
                 {
                     var arac = shortestPath1[i];
                     points1.Add(new PointLatLng(arac.lat, arac.lon));
 
-                    GMapMarker marker = new GMarkerGoogle(new PointLatLng(arac.lat, arac.lon), GMarkerGoogleType.blue);
+                    GMapMarker marker = new GMarkerGoogle(new PointLatLng(arac.lat, arac.lon), GMarkerGoogleType.yellow);
                     marker.ToolTipText = $"Graph Durak {i + 1}: {arac.name}";
                     routeOverlay1.Markers.Add(marker);
 
@@ -309,7 +323,7 @@ namespace HaritaUygulamasi
             }
 
             GMapRoute route1 = new GMapRoute(points1, "Rota 1");
-            route1.Stroke = new Pen(Color.Blue, 3);
+            route1.Stroke = new Pen(Color.Yellow, 3);
             routeOverlay1.Routes.Add(route1);
 
             GMapRoute route2 = new GMapRoute(points2, "Rota 2");
@@ -448,7 +462,7 @@ namespace HaritaUygulamasi
                     if (Application.OpenForms["Form1"] == null)
                     {
                         Form1 yeniForm = new Form1(Durak, graph);
-                        yeniForm.DrawRoutes(shortestPath, shortestPath2 , taksiucreti);
+                        yeniForm.DrawRoutes(shortestPath, shortestPath2 , taksiucreti,lat_konum, lon_konum);
                         Application.Run(yeniForm);
                     }
                 }
