@@ -53,7 +53,6 @@ public class json
 
         List<string> nextStopsList = new List<string>();
 
-        // Durak bilgilerini yazdır
         Console.WriteLine($"\nDurak: {name} (ID: {id})");
         Console.WriteLine("Next Stops:");
 
@@ -240,7 +239,7 @@ namespace HaritaUygulamasi
         }
         public static double totalWeight1 = 0;
         public static double totalWeight2 = 0;
-        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2 , double taksiucreti,double lat_konum , double lon_konum)
+        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2 , double taksiucreti,double lat_konum , double lon_konum , double lat_hedef , double lon_hedef)
         {
             if ((shortestPath1 == null || shortestPath1.Count < 2) &&
                 (shortestPath2 == null || shortestPath2.Count < 2))
@@ -259,10 +258,10 @@ namespace HaritaUygulamasi
 
             int maxLength = Math.Max(shortestPath1.Count, shortestPath2.Count);
 
-            int indexWidth = 2;    // "1." için genişlik
-            int nameWidth = 22;    // Durak ismi genişliği
-            int coordWidth = 25;   // Koordinatlar genişliği
-            int typeWidth = 7;    // "Graph" veya "Graph2"
+            int indexWidth = 2;    
+            int nameWidth = 22;    
+            int coordWidth = 25;   
+            int typeWidth = 7;    
             string separator = " || ";
 
             for (int i = 0; i < maxLength; i++)
@@ -280,16 +279,38 @@ namespace HaritaUygulamasi
                 if (shortestPath1.Count > 0)
                 {
                     var firstStop = shortestPath1[0];
-                    points1.Insert(0, new PointLatLng(lat_konum, lon_konum)); // Başlangıç konumunu ekle
+                    var lastStop = shortestPath1[shortestPath1.Count - 1]; // Son durağı al
+
+                    // Başlangıç konumunu ekle
+                    points1.Insert(0, new PointLatLng(lat_konum, lon_konum));
                     GMapMarker startMarker = new GMarkerGoogle(new PointLatLng(lat_konum, lon_konum), GMarkerGoogleType.yellow);
                     startMarker.ToolTipText = "Başlangıç Konumu";
                     routeOverlay1.Markers.Add(startMarker);
 
                     // Başlangıç konumu ile ilk durak arasındaki çizgiyi çiz
-                    GMapRoute startToFirstStop = new GMapRoute(new List<PointLatLng> { new PointLatLng(lat_konum, lon_konum), new PointLatLng(firstStop.lat, firstStop.lon) }, "Başlangıç - İlk Durak");
+                    GMapRoute startToFirstStop = new GMapRoute(new List<PointLatLng>
+                    {
+                        new PointLatLng(lat_konum, lon_konum),
+                        new PointLatLng(firstStop.lat, firstStop.lon)
+                    }, "Başlangıç - İlk Durak");
                     startToFirstStop.Stroke = new Pen(Color.Yellow, 2);
                     routeOverlay1.Routes.Add(startToFirstStop);
+
+                    // Son duraktan hedef konuma çizgi ekle
+                    GMapRoute lastStopToTarget = new GMapRoute(new List<PointLatLng>
+                    {
+                        new PointLatLng(lastStop.lat, lastStop.lon),
+                        new PointLatLng(lat_hedef, lon_hedef)
+                    }, "Son Durak - Hedef");
+                    lastStopToTarget.Stroke = new Pen(Color.Yellow, 2);
+                    routeOverlay1.Routes.Add(lastStopToTarget);
+
+                    // Hedef konumu işaretle
+                    GMapMarker targetMarker = new GMarkerGoogle(new PointLatLng(lat_hedef, lon_hedef), GMarkerGoogleType.red);
+                    targetMarker.ToolTipText = "Hedef Konumu";
+                    routeOverlay1.Markers.Add(targetMarker);
                 }
+
 
                 if (i < shortestPath1.Count)
                 {
@@ -304,6 +325,41 @@ namespace HaritaUygulamasi
                     {
                         totalWeight1 += graph.GetEdgeWeight(shortestPath1[i - 1], arac);
                     }
+                }
+
+                if (shortestPath2.Count > 0)
+                {
+                    var firstStop = shortestPath2[0];
+                    var lastStop = shortestPath2[shortestPath2.Count - 1]; // Son durağı al
+
+                    // Başlangıç konumunu ekle
+                    points1.Insert(0, new PointLatLng(lat_konum, lon_konum));
+                    GMapMarker startMarker = new GMarkerGoogle(new PointLatLng(lat_konum, lon_konum), GMarkerGoogleType.yellow);
+                    startMarker.ToolTipText = "Başlangıç Konumu";
+                    routeOverlay2.Markers.Add(startMarker);
+
+                    // Başlangıç konumu ile ilk durak arasındaki çizgiyi çiz
+                    GMapRoute startToFirstStop = new GMapRoute(new List<PointLatLng>
+                    {
+                        new PointLatLng(lat_konum, lon_konum),
+                        new PointLatLng(firstStop.lat, firstStop.lon)
+                    }, "Başlangıç - İlk Durak");
+                    startToFirstStop.Stroke = new Pen(Color.Yellow, 2);
+                    routeOverlay2.Routes.Add(startToFirstStop);
+
+                    // Son duraktan hedef konuma çizgi ekle
+                    GMapRoute lastStopToTarget = new GMapRoute(new List<PointLatLng>
+                    {
+                        new PointLatLng(lastStop.lat, lastStop.lon),
+                        new PointLatLng(lat_hedef, lon_hedef)
+                    }, "Son Durak - Hedef");
+                    lastStopToTarget.Stroke = new Pen(Color.Yellow, 2);
+                    routeOverlay2.Routes.Add(lastStopToTarget);
+
+                    // Hedef konumu işaretle
+                    GMapMarker targetMarker = new GMarkerGoogle(new PointLatLng(lat_hedef, lon_hedef), GMarkerGoogleType.red);
+                    targetMarker.ToolTipText = "Hedef Konumu";
+                    routeOverlay2.Markers.Add(targetMarker);
                 }
 
                 if (i < shortestPath2.Count)
@@ -327,7 +383,7 @@ namespace HaritaUygulamasi
             routeOverlay1.Routes.Add(route1);
 
             GMapRoute route2 = new GMapRoute(points2, "Rota 2");
-            route2.Stroke = new Pen(Color.Green, 3);
+            route2.Stroke = new Pen(Color.Red, 3);
             routeOverlay2.Routes.Add(route2);
 
             gMapControl.Overlays.Clear();
@@ -365,7 +421,6 @@ namespace HaritaUygulamasi
                 Console.WriteLine("Hata: terminalBox nesnesi kapatılmış.");
             }
         }
-
 
         private void AddMarkerAtLocation(double lat, double lon, string description)
         {
@@ -444,7 +499,7 @@ namespace HaritaUygulamasi
                         hedefEnYakinDurak = durak;
                     }
                 }
-                 taksi.mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum , enYakinDurak.lat , enYakinDurak.lon);
+                taksi.mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum , enYakinDurak.lat , enYakinDurak.lon);
                 double taksiucreti = 0;
                 if(taksi.mesafe > 3)
                 {
@@ -462,7 +517,7 @@ namespace HaritaUygulamasi
                     if (Application.OpenForms["Form1"] == null)
                     {
                         Form1 yeniForm = new Form1(Durak, graph);
-                        yeniForm.DrawRoutes(shortestPath, shortestPath2 , taksiucreti,lat_konum, lon_konum);
+                        yeniForm.DrawRoutes(shortestPath, shortestPath2, taksiucreti,lat_konum, lon_konum , hedef_lat, hedef_lon);
                         Application.Run(yeniForm);
                     }
                 }
@@ -618,10 +673,6 @@ namespace HaritaUygulamasi
                     }
                 }
 
-                yakinDurakBul.graph.PrintGraph();
-                //yakinDurakBul.EnYakinDuragiBul(otobusDuraklari, taksi, graph);
-                //graph.PrintShortestPath(BusSekapark, BusOtogar);
-
                 foreach (var durak in otobusDuraklari)
                 {
                     yakinDurakBul.graph2.AddNode(durak);
@@ -710,7 +761,6 @@ namespace HaritaUygulamasi
                 double targetLon = Convert.ToDouble(value[3]);
 
                 yakinDurakBul.EnYakinDuragiBul(aracDuraklari, taksi, startLat, startLon, targetLat, targetLon , form);
-                
             }
         }
     }
