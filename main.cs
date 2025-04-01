@@ -239,7 +239,7 @@ namespace HaritaUygulamasi
         }
         public static double totalWeight1 = 0;
         public static double totalWeight2 = 0;
-        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2 , double taksiucreti,double lat_konum , double lon_konum , double lat_hedef , double lon_hedef)
+        public void DrawRoutes(List<Arac> shortestPath1, List<Arac> shortestPath2 , Taksi taksi, double taksiucreti, double lat_konum , double lon_konum , double lat_hedef , double lon_hedef)
         {
             if ((shortestPath1 == null || shortestPath1.Count < 2) &&
                 (shortestPath2 == null || shortestPath2.Count < 2))
@@ -379,7 +379,7 @@ namespace HaritaUygulamasi
             }
 
             GMapRoute route1 = new GMapRoute(points1, "Rota 1");
-            route1.Stroke = new Pen(Color.Yellow, 3);
+            route1.Stroke = new Pen(Color.Green, 3);
             routeOverlay1.Routes.Add(route1);
 
             GMapRoute route2 = new GMapRoute(points2, "Rota 2");
@@ -408,6 +408,24 @@ namespace HaritaUygulamasi
                 gMapControl.ZoomAndCenterRoutes("route1");
                 gMapControl.ZoomAndCenterRoutes("route2");
             }
+
+            // Yeni taksi rotası için mor renkli çizgi ekleme
+            GMapOverlay taxiRouteOverlay = new GMapOverlay("taxiRoute");
+            List<PointLatLng> taxiRoutePoints = new List<PointLatLng>
+            {
+                new PointLatLng(lat_konum, lon_konum), // Başlangıç noktası
+                new PointLatLng(lat_hedef, lon_hedef)  // Hedef noktası
+            };
+
+            GMapRoute taxiRoute = new GMapRoute(taxiRoutePoints, "Taksi Rota");
+            taxiRoute.Stroke = new Pen(Color.MediumPurple, 3); // Mor renk
+            taxiRouteOverlay.Routes.Add(taxiRoute);
+
+            gMapControl.Overlays.Add(taxiRouteOverlay);
+
+            // Taksi ücreti hesaplama ve terminale yazdırma
+            double taksiUcreti = taksi.UcretHesapla(); // Taksi ücretini hesapla
+            LogToTerminal($"Taksi Rotası Ücreti: {taksiUcreti} TL"); // Terminale yazdır
         }
 
         private void LogToTerminal(string message)
@@ -517,7 +535,7 @@ namespace HaritaUygulamasi
                     if (Application.OpenForms["Form1"] == null)
                     {
                         Form1 yeniForm = new Form1(Durak, graph);
-                        yeniForm.DrawRoutes(shortestPath, shortestPath2, taksiucreti,lat_konum, lon_konum , hedef_lat, hedef_lon);
+                        yeniForm.DrawRoutes(shortestPath, shortestPath2, taksi, taksiucreti,lat_konum, lon_konum , hedef_lat, hedef_lon);
                         Application.Run(yeniForm);
                     }
                 }
