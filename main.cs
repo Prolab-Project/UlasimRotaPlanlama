@@ -424,8 +424,12 @@ namespace HaritaUygulamasi
             gMapControl.Overlays.Add(taxiRouteOverlay);
 
             // Taksi ücreti hesaplama ve terminale yazdırma
-            double taksiUcreti = taksi.UcretHesapla(); // Taksi ücretini hesapla
-            LogToTerminal($"Taksi Rotası Ücreti: {taksiUcreti} TL"); // Terminale yazdır
+            taksi.mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum, lat_hedef, lon_hedef);
+            taksiucreti = 0; 
+            taksiucreti = taksi.UcretHesapla() + taksiucreti;
+
+
+            LogToTerminal($"Direkt Taksi Rotası Ücreti: {taksiucreti} TL"); // Terminale yazdır
         }
 
         private void LogToTerminal(string message)
