@@ -18,6 +18,9 @@ using System.Drawing;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Windows.Forms;
 using System.Runtime.CompilerServices;
+using UlasimRotaPlanlama.Models.Odeme;
+
+
 
 public static class jsonreader
 {
@@ -148,6 +151,7 @@ public class TramSinifOlustur
         
 namespace HaritaUygulamasi
 {
+
     public class Form1 : Form
     {
         private GMapControl gMapControl;
@@ -160,7 +164,10 @@ namespace HaritaUygulamasi
         private TextBox targetLonTextBox;
         private Button calculateRouteButton;
         private Button paymentMethodButton;
-        
+        private static bool isNakitSelected = false; // Nakit ödeme seçildi mi?
+        private static bool isKentKartSelected = false;// Kentkart seçildi mi?
+        private static bool isKrediKartiSelected = false; // Kredi kartı seçildi mi?
+
         public Form1(List<Arac> arac, Graph graph = null)
         {
             this.aracListesi = arac;
@@ -241,6 +248,42 @@ namespace HaritaUygulamasi
             else
             {
                 MessageBox.Show("Lütfen geçerli koordinatlar girin.");
+            }
+        }
+
+
+        // Ödeme yöntemi seçme butonuna tıklama olayı
+        private void PaymentMethodButton_Click(object sender, EventArgs e)
+        {
+            string message = "💳 Ödeme tipini seçiniz:\n1 - Nakit\n2 - Kentkart (%20 indirim)\n3 - Kredi Kartı (+%1.5 komisyon)";
+            string title = "Ödeme Yöntemi Seçimi";
+            string input = Microsoft.VisualBasic.Interaction.InputBox(message, title, "1");
+
+            if (int.TryParse(input, out int choice))
+            {
+                switch (choice)
+                {
+                    case 1:
+                        MessageBox.Show("Nakit ödeme seçildi.");
+                        isNakitSelected = true;
+                        break;
+                    case 2:
+                        MessageBox.Show("Kentkart seçildi. %20 indirim uygulanacak.");
+                        isKentKartSelected = true;
+
+                        break;
+                    case 3:
+                        MessageBox.Show("Kredi Kartı seçildi. +%1.5 komisyon uygulanacak.");
+                        isKrediKartiSelected = true;
+                        break;
+                    default:
+                        MessageBox.Show("Geçersiz seçim. Lütfen tekrar deneyin.");
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Geçersiz giriş. Lütfen bir sayı girin.");
             }
         }
         public static double totalWeight1 = 0;
@@ -405,6 +448,40 @@ namespace HaritaUygulamasi
             double indirimliUcretOgrenci = ogrenci.UcretHesapla(totalWeight1) + taksiucreti;
             double indirimliUcretYasli = yasli.UcretHesapla(totalWeight1) + taksiucreti;
             double indirimliUcretGenel = genel.UcretHesapla(totalWeight1) + taksiucreti;
+            double odemeliUcretKentKart = 0;
+            double odemeliUcretNakit = 0; 
+            double odemeliUcretKrediKarti = 0;
+
+            KrediKarti kredikarti = new KrediKarti();
+            Nakit nakit = new Nakit();
+            KentKart kentkart = new KentKart();
+
+            if (isKentKartSelected)
+            {
+                Console.WriteLine($"Kentkart secilmis indirimsiz {totalWeight1}"); 
+                odemeliUcretKentKart = kentkart.Hesapla(totalWeight1);
+                Console.WriteLine($"Kentkart ucreti hesaplandi: {odemeliUcretKentKart}");
+                LogToTerminal("Kentkart seçtiğiniz için indirimli ücret : " + odemeliUcretKentKart);
+            }
+
+            if (isNakitSelected)
+            {
+                Console.WriteLine($"Nakit secilmis indirimsiz {totalWeight1}");
+                odemeliUcretNakit = nakit.Hesapla(totalWeight1);
+                Console.WriteLine($"Nakit ucreti hesaplandi: {odemeliUcretNakit}");
+                LogToTerminal("Nakit seçtiğiniz için indirimli ücret : " + odemeliUcretNakit);
+            }
+
+            if (isKrediKartiSelected)
+            {
+                Console.WriteLine($"krediakrt secilmis indirimsiz {totalWeight1}");
+                odemeliUcretKrediKarti = kredikarti.Hesapla(totalWeight1);
+                Console.WriteLine($"Kredikart ucreti hesaplandi: {odemeliUcretKrediKarti}");
+                LogToTerminal("Kredi kartı seçtiğiniz için indirimli ücret: " + odemeliUcretKrediKarti);
+            }
+
+
+
 
             LogToTerminal(string.Format("Toplam ücret: {0} \n TL Indirimli Ogrenci Ucreti : {2} TL \n Indirimli Yasli Ucreti : {3} TL                                           || Toplam süre: {1}", totalWeight1+taksiucreti , totalWeight2+taksiucreti , indirimliUcretOgrenci, indirimliUcretYasli));
             LogToTerminal("📍 Rotalar başarıyla çizildi.");
@@ -556,39 +633,7 @@ namespace HaritaUygulamasi
             }
         }
 
-        // Ödeme yöntemi seçme butonuna tıklama olayı
-        private void PaymentMethodButton_Click(object sender, EventArgs e)
-        {
-            string message = "💳 Ödeme tipini seçiniz:\n1 - Nakit\n2 - Kentkart (%20 indirim)\n3 - Kredi Kartı (+%1.5 komisyon)";
-            string title = "Ödeme Yöntemi Seçimi";
-            string input = Microsoft.VisualBasic.Interaction.InputBox(message, title, "1");
-
-            if (int.TryParse(input, out int choice))
-            {
-                switch (choice)
-                {
-                    case 1:
-                        MessageBox.Show("Nakit ödeme seçildi.");
-                        // Nakit ödeme işlemleri
-                        break;
-                    case 2:
-                        MessageBox.Show("Kentkart seçildi. %20 indirim uygulanacak.");
-                        // Kentkart ödeme işlemleri
-                        break;
-                    case 3:
-                        MessageBox.Show("Kredi Kartı seçildi. +%1.5 komisyon uygulanacak.");
-                        // Kredi kartı ödeme işlemleri
-                        break;
-                    default:
-                        MessageBox.Show("Geçersiz seçim. Lütfen tekrar deneyin.");
-                        break;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Geçersiz giriş. Lütfen bir sayı girin.");
-            }
-        }
+     
 
         internal static class main
         {
