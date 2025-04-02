@@ -159,6 +159,7 @@ namespace HaritaUygulamasi
         private TextBox targetLatTextBox;
         private TextBox targetLonTextBox;
         private Button calculateRouteButton;
+        private Button paymentMethodButton;
         
         public Form1(List<Arac> arac, Graph graph = null)
         {
@@ -209,6 +210,11 @@ namespace HaritaUygulamasi
             this.Controls.Add(targetLatTextBox);
             this.Controls.Add(startLonTextBox);
             this.Controls.Add(startLatTextBox);
+
+            paymentMethodButton = new Button { Text = "Ödeme Yöntemi Seç", Dock = DockStyle.Top };
+            paymentMethodButton.Click += PaymentMethodButton_Click;
+
+            this.Controls.Add(paymentMethodButton);
 
             this.Load += new System.EventHandler(this.Form1_Load);
 
@@ -461,7 +467,7 @@ namespace HaritaUygulamasi
 
                     if (clickPos.Lat == lat && clickPos.Lng == lon)
                     {
-                        MessageBox.Show("T klanan yerin a  klamas : " + description);
+                        MessageBox.Show("Tıklanan yerin açıklaması: " + description);
                     }
                 }
             };
@@ -547,6 +553,40 @@ namespace HaritaUygulamasi
                 {
                     Console.WriteLine("Yakınlarda otobüs durağı bulunamadı.");
                 }
+            }
+        }
+
+        // Ödeme yöntemi seçme butonuna tıklama olayı
+        private void PaymentMethodButton_Click(object sender, EventArgs e)
+        {
+            string message = "💳 Ödeme tipini seçiniz:\n1 - Nakit\n2 - Kentkart (%20 indirim)\n3 - Kredi Kartı (+%1.5 komisyon)";
+            string title = "Ödeme Yöntemi Seçimi";
+            string input = Microsoft.VisualBasic.Interaction.InputBox(message, title, "1");
+
+            if (int.TryParse(input, out int choice))
+            {
+                switch (choice)
+                {
+                    case 1:
+                        MessageBox.Show("Nakit ödeme seçildi.");
+                        // Nakit ödeme işlemleri
+                        break;
+                    case 2:
+                        MessageBox.Show("Kentkart seçildi. %20 indirim uygulanacak.");
+                        // Kentkart ödeme işlemleri
+                        break;
+                    case 3:
+                        MessageBox.Show("Kredi Kartı seçildi. +%1.5 komisyon uygulanacak.");
+                        // Kredi kartı ödeme işlemleri
+                        break;
+                    default:
+                        MessageBox.Show("Geçersiz seçim. Lütfen tekrar deneyin.");
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Geçersiz giriş. Lütfen bir sayı girin.");
             }
         }
 
