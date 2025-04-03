@@ -678,19 +678,7 @@ namespace HaritaUygulamasi
                     yakinDurakBul.graph.AddNode(durak);
                 }
 
-                var validStops = new List<string>
-                    {
-                        "bus_otogar",
-                        "bus_sekapark",
-                        "bus_yahyakaptan",
-                        "bus_umuttepe",
-                        "bus_symbolavm",
-                        "bus_41burda",
-                        "tram_otogar",
-                        "tram_yahyakaptan",
-                        "tram_sekapark",
-                        "tram_halkevi"
-                    };
+                var validStops = aracDuraklari.Select(d => d.id.Trim()).ToList();
 
                 int i = 0;
 
