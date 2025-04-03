@@ -20,8 +20,6 @@ using System.Windows.Forms;
 using System.Runtime.CompilerServices;
 using UlasimRotaPlanlama.Models.Odeme;
 
-
-
 public static class jsonreader
 {
     public static string JsonReader(string filePath)
@@ -56,9 +54,6 @@ public class json
 
         List<string> nextStopsList = new List<string>();
 
-        Console.WriteLine($"\nDurak: {name} (ID: {id})");
-        Console.WriteLine("Next Stops:");
-
         if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("nextStops", out JsonElement nextStops))
         {
             foreach (JsonElement stop in nextStops.EnumerateArray())
@@ -68,25 +63,18 @@ public class json
                 int sure = stop.GetProperty("sure").GetInt32();
                 double ucret = stop.GetProperty("ucret").GetDouble();
 
-                Console.WriteLine($"  -> {stopId}: {mesafe}km, {sure}dk, {ucret}TL");
-
                 surelist.Add(sure);
                 ucretlist.Add(ucret);
                 nextStopsList.Add($"{stopId}({mesafe}km, {sure}dk, {ucret}TL)");
             }
         }
 
-        Console.WriteLine("Transfer Bilgileri:");
         if (root.GetProperty("duraklar").EnumerateArray().ElementAt(x).TryGetProperty("transfer", out JsonElement Transfer) &&
             !Transfer.ValueKind.Equals(JsonValueKind.Null))
         {
             string transferStopId = Transfer.GetProperty("transferStopId").GetString();
             double transferSure = Transfer.GetProperty("transferSure").GetDouble();
             double transferUcret = Transfer.GetProperty("transferUcret").GetDouble();
-
-            Console.WriteLine($"  -> Transfer durağı: {transferStopId}");
-            Console.WriteLine($"  -> Transfer süresi: {transferSure}dk");
-            Console.WriteLine($"  -> Transfer ücreti: {transferUcret}TL");
 
             surelist.Add((int)transferSure);
             ucretlist.Add(transferUcret);
@@ -96,7 +84,6 @@ public class json
         {
             Console.WriteLine("  -> Transfer bilgisi yok");
         }
-        Console.WriteLine("------------------------");
 
         string nextStopsData = nextStopsList.Count > 0 ? string.Join(", ", nextStopsList) : "None";
 
@@ -151,7 +138,6 @@ public class TramSinifOlustur
         
 namespace HaritaUygulamasi
 {
-
     public class Form1 : Form
     {
         private GMapControl gMapControl;
@@ -164,9 +150,9 @@ namespace HaritaUygulamasi
         private TextBox targetLonTextBox;
         private Button calculateRouteButton;
         private Button paymentMethodButton;
-        private static bool isNakitSelected = false; // Nakit ödeme seçildi mi?
-        private static bool isKentKartSelected = false;// Kentkart seçildi mi?
-        private static bool isKrediKartiSelected = false; // Kredi kartı seçildi mi?
+        private static bool isNakitSelected = false; 
+        private static bool isKentKartSelected = false;
+        private static bool isKrediKartiSelected = false; 
 
         public Form1(List<Arac> arac, Graph graph = null)
         {
@@ -224,7 +210,6 @@ namespace HaritaUygulamasi
             this.Controls.Add(paymentMethodButton);
 
             this.Load += new System.EventHandler(this.Form1_Load);
-
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -250,9 +235,6 @@ namespace HaritaUygulamasi
                 MessageBox.Show("Lütfen geçerli koordinatlar girin.");
             }
         }
-
-
-        // Ödeme yöntemi seçme butonuna tıklama olayı
         private void PaymentMethodButton_Click(object sender, EventArgs e)
         {
             string message = "💳 Ödeme tipini seçiniz:\n1 - Nakit\n2 - Kentkart (%20 indirim)\n3 - Kredi Kartı (+%1.5 komisyon)";
@@ -328,15 +310,13 @@ namespace HaritaUygulamasi
                 if (shortestPath1.Count > 0)
                 {
                     var firstStop = shortestPath1[0];
-                    var lastStop = shortestPath1[shortestPath1.Count - 1]; // Son durağı al
+                    var lastStop = shortestPath1[shortestPath1.Count - 1]; 
 
-                    // Başlangıç konumunu ekle
                     points1.Insert(0, new PointLatLng(lat_konum, lon_konum));
                     GMapMarker startMarker = new GMarkerGoogle(new PointLatLng(lat_konum, lon_konum), GMarkerGoogleType.yellow);
                     startMarker.ToolTipText = "Başlangıç Konumu";
                     routeOverlay1.Markers.Add(startMarker);
 
-                    // Başlangıç konumu ile ilk durak arasındaki çizgiyi çiz
                     GMapRoute startToFirstStop = new GMapRoute(new List<PointLatLng>
                     {
                         new PointLatLng(lat_konum, lon_konum),
@@ -345,7 +325,6 @@ namespace HaritaUygulamasi
                     startToFirstStop.Stroke = new Pen(Color.Yellow, 2);
                     routeOverlay1.Routes.Add(startToFirstStop);
 
-                    // Son duraktan hedef konuma çizgi ekle
                     GMapRoute lastStopToTarget = new GMapRoute(new List<PointLatLng>
                     {
                         new PointLatLng(lastStop.lat, lastStop.lon),
@@ -354,12 +333,10 @@ namespace HaritaUygulamasi
                     lastStopToTarget.Stroke = new Pen(Color.Yellow, 2);
                     routeOverlay1.Routes.Add(lastStopToTarget);
 
-                    // Hedef konumu işaretle
                     GMapMarker targetMarker = new GMarkerGoogle(new PointLatLng(lat_hedef, lon_hedef), GMarkerGoogleType.red);
                     targetMarker.ToolTipText = "Hedef Konumu";
                     routeOverlay1.Markers.Add(targetMarker);
                 }
-
 
                 if (i < shortestPath1.Count)
                 {
@@ -379,15 +356,13 @@ namespace HaritaUygulamasi
                 if (shortestPath2.Count > 0)
                 {
                     var firstStop = shortestPath2[0];
-                    var lastStop = shortestPath2[shortestPath2.Count - 1]; // Son durağı al
+                    var lastStop = shortestPath2[shortestPath2.Count - 1]; 
 
-                    // Başlangıç konumunu ekle
                     points1.Insert(0, new PointLatLng(lat_konum, lon_konum));
                     GMapMarker startMarker = new GMarkerGoogle(new PointLatLng(lat_konum, lon_konum), GMarkerGoogleType.yellow);
                     startMarker.ToolTipText = "Başlangıç Konumu";
                     routeOverlay2.Markers.Add(startMarker);
 
-                    // Başlangıç konumu ile ilk durak arasındaki çizgiyi çiz
                     GMapRoute startToFirstStop = new GMapRoute(new List<PointLatLng>
                     {
                         new PointLatLng(lat_konum, lon_konum),
@@ -396,7 +371,6 @@ namespace HaritaUygulamasi
                     startToFirstStop.Stroke = new Pen(Color.Yellow, 2);
                     routeOverlay2.Routes.Add(startToFirstStop);
 
-                    // Son duraktan hedef konuma çizgi ekle
                     GMapRoute lastStopToTarget = new GMapRoute(new List<PointLatLng>
                     {
                         new PointLatLng(lastStop.lat, lastStop.lon),
@@ -405,7 +379,6 @@ namespace HaritaUygulamasi
                     lastStopToTarget.Stroke = new Pen(Color.Yellow, 2);
                     routeOverlay2.Routes.Add(lastStopToTarget);
 
-                    // Hedef konumu işaretle
                     GMapMarker targetMarker = new GMarkerGoogle(new PointLatLng(lat_hedef, lon_hedef), GMarkerGoogleType.red);
                     targetMarker.ToolTipText = "Hedef Konumu";
                     routeOverlay2.Markers.Add(targetMarker);
@@ -480,9 +453,6 @@ namespace HaritaUygulamasi
                 LogToTerminal("Kredi kartı seçtiğiniz için indirimli ücret: " + odemeliUcretKrediKarti);
             }
 
-
-
-
             LogToTerminal(string.Format("Toplam ücret: {0} \n TL Indirimli Ogrenci Ucreti : {2} TL \n Indirimli Yasli Ucreti : {3} TL                                           || Toplam süre: {1}", totalWeight1+taksiucreti , totalWeight2+taksiucreti , indirimliUcretOgrenci, indirimliUcretYasli));
             LogToTerminal("📍 Rotalar başarıyla çizildi.");
 
@@ -492,27 +462,25 @@ namespace HaritaUygulamasi
                 gMapControl.ZoomAndCenterRoutes("route2");
             }
 
-            // Yeni taksi rotası için mor renkli çizgi ekleme
             GMapOverlay taxiRouteOverlay = new GMapOverlay("taxiRoute");
             List<PointLatLng> taxiRoutePoints = new List<PointLatLng>
             {
-                new PointLatLng(lat_konum, lon_konum), // Başlangıç noktası
-                new PointLatLng(lat_hedef, lon_hedef)  // Hedef noktası
+                new PointLatLng(lat_konum, lon_konum), 
+                new PointLatLng(lat_hedef, lon_hedef)  
             };
 
             GMapRoute taxiRoute = new GMapRoute(taxiRoutePoints, "Taksi Rota");
-            taxiRoute.Stroke = new Pen(Color.MediumPurple, 3); // Mor renk
+            taxiRoute.Stroke = new Pen(Color.MediumPurple, 3); 
             taxiRouteOverlay.Routes.Add(taxiRoute);
 
             gMapControl.Overlays.Add(taxiRouteOverlay);
 
-            // Taksi ücreti hesaplama ve terminale yazdırma
             taksi.mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum, lat_hedef, lon_hedef);
             taksiucreti = 0; 
             taksiucreti = taksi.UcretHesapla() + taksiucreti;
 
 
-            LogToTerminal($"Direkt Taksi Rotası Ücreti: {taksiucreti} TL"); // Terminale yazdır
+            LogToTerminal($"Direkt Taksi Rotası Ücreti: {taksiucreti} TL"); 
         }
 
         private void LogToTerminal(string message)
@@ -632,8 +600,6 @@ namespace HaritaUygulamasi
                 }
             }
         }
-
-     
 
         internal static class main
         {
@@ -860,7 +826,6 @@ namespace HaritaUygulamasi
                 Form1 form = new Form1(aracDuraklari, yakinDurakBul.graph);
                 Application.Run(form);
 
-                Console.WriteLine("jnskljg");
                 string[] value = form.coordinates.Split("/");
                 double startLat = Convert.ToDouble(value[0]);
                 double startLon = Convert.ToDouble(value[1]);
