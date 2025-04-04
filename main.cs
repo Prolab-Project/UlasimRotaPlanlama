@@ -36,7 +36,7 @@ public class json
         string json = jsonreader.JsonReader("dataset/bedirhan.json");
 
         JsonDocument doc = JsonDocument.Parse(json);
-        JsonElement root = doc.RootElement;
+            JsonElement root = doc.RootElement;
 
         double lat;
         double lon;
@@ -153,6 +153,12 @@ namespace HaritaUygulamasi
         private static bool isNakitSelected = false; 
         private static bool isKentKartSelected = false;
         private static bool isKrediKartiSelected = false; 
+        private Button passengerTypeButton;
+        private Yolcu yolcu;
+        private static bool isYasliSelected= false ;
+        private static bool isOgrenciSelected= false  ;
+        private static bool isGenelSelected = false ; 
+
 
         public Form1(List<Arac> arac, Graph graph = null)
         {
@@ -209,6 +215,11 @@ namespace HaritaUygulamasi
 
             this.Controls.Add(paymentMethodButton);
 
+            passengerTypeButton = new Button { Text = "Yolcu Türü Seç", Dock = DockStyle.Top };
+            passengerTypeButton.Click += PassengerTypeButton_Click;
+
+            this.Controls.Add(passengerTypeButton);
+
             this.Load += new System.EventHandler(this.Form1_Load);
         }
         private void Form1_Load(object sender, EventArgs e)
@@ -257,6 +268,41 @@ namespace HaritaUygulamasi
                     case 3:
                         MessageBox.Show("Kredi Kartı seçildi. +%1.5 komisyon uygulanacak.");
                         isKrediKartiSelected = true;
+                        break;
+                    default:
+                        MessageBox.Show("Geçersiz seçim. Lütfen tekrar deneyin.");
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Geçersiz giriş. Lütfen bir sayı girin.");
+            }
+        }
+        private void PassengerTypeButton_Click(object sender, EventArgs e)
+        {
+            string message = "🚍 Yolcu türünü seçiniz:\n1 - Öğrenci\n2 - Yaşlı\n3 - Genel";
+            string title = "Yolcu Türü Seçimi";
+            string input = Microsoft.VisualBasic.Interaction.InputBox(message, title, "1");
+
+            if (int.TryParse(input, out int choice))
+            {
+                switch (choice)
+                {
+                    case 1:
+                        MessageBox.Show("Öğrenci yolcu seçildi.");
+                        isOgrenciSelected= true ; 
+
+                        break;
+                    case 2:
+                        MessageBox.Show("Yaşlı yolcu seçildi.");
+                        isYasliSelected= true ; 
+
+    
+                            break;
+                    case 3:
+                        MessageBox.Show("Genel yolcu seçildi.");
+                        isGenelSelected= true ; 
                         break;
                     default:
                         MessageBox.Show("Geçersiz seçim. Lütfen tekrar deneyin.");
@@ -418,9 +464,24 @@ namespace HaritaUygulamasi
             Yolcu yasli = new Yasli();
             Yolcu genel = new Genel();
 
+
+
             double indirimliUcretOgrenci = ogrenci.UcretHesapla(totalWeight1) + taksiucreti;
             double indirimliUcretYasli = yasli.UcretHesapla(totalWeight1) + taksiucreti;
             double indirimliUcretGenel = genel.UcretHesapla(totalWeight1) + taksiucreti;
+
+        if (isOgrenciSelected){
+            LogToTerminal($"Ogrenci oldugunuz icin indirim uygulandi! Indirimli ucret : {indirimliUcretOgrenci}");
+        }
+        
+        if (isYasliSelected){
+            LogToTerminal($"Yasli oldugunuz icin indirim uygulandi! Indirimli ucret : {indirimliUcretYasli}");
+        }
+        
+        if (isGenelSelected){
+            LogToTerminal($"Genel oldugunuz icin indirim uygulanmadi! Indirimli ucret : {indirimliUcretGenel}");
+        }
+
             double odemeliUcretKentKart = 0;
             double odemeliUcretNakit = 0; 
             double odemeliUcretKrediKarti = 0;
