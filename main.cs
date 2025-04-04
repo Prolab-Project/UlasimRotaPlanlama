@@ -36,7 +36,7 @@ public class json
         string json = jsonreader.JsonReader("dataset/bedirhan.json");
 
         JsonDocument doc = JsonDocument.Parse(json);
-            JsonElement root = doc.RootElement;
+        JsonElement root = doc.RootElement;
 
         double lat;
         double lon;
@@ -159,7 +159,6 @@ namespace HaritaUygulamasi
         private static bool isOgrenciSelected= false  ;
         private static bool isGenelSelected = false ; 
 
-
         public Form1(List<Arac> arac, Graph graph = null)
         {
             this.aracListesi = arac;
@@ -229,7 +228,6 @@ namespace HaritaUygulamasi
                 AddMarkerAtLocation(arac.lat, arac.lon, arac.name);
             }
 
-            LogToTerminal("Harita yüklendi.");
         }
         public string coordinates;
         private void CalculateRouteButton_Click(object sender, EventArgs e)
@@ -464,12 +462,9 @@ namespace HaritaUygulamasi
             Yolcu yasli = new Yasli();
             Yolcu genel = new Genel();
 
-
-
             double indirimliUcretOgrenci = ogrenci.UcretHesapla(totalWeight1) + taksiucreti;
             double indirimliUcretYasli = yasli.UcretHesapla(totalWeight1) + taksiucreti;
             double indirimliUcretGenel = genel.UcretHesapla(totalWeight1) + taksiucreti;
-
 
             double odemeliUcretKentKart = 0;
             double odemeliUcretNakit = 0; 
@@ -478,7 +473,6 @@ namespace HaritaUygulamasi
             KrediKarti kredikarti = new KrediKarti();
             Nakit nakit = new Nakit();
             KentKart kentkart = new KentKart();
-
 
             if (isOgrenciSelected)
             {
@@ -498,7 +492,6 @@ namespace HaritaUygulamasi
                     double nakitOgrenci = nakit.Hesapla(indirimliUcretOgrenci);
                     LogToTerminal($"Nakit sectiginiz ve ogrenci oldugunuz icin indirimli ucreti hesaplandi: {nakitOgrenci}");
                 }
-
             }
 
             if (isYasliSelected)
@@ -539,11 +532,9 @@ namespace HaritaUygulamasi
                     double nakitGenel = nakit.Hesapla(indirimliUcretGenel);
                     LogToTerminal($"Nakit sectiginiz ve genel oldugunuz icin indirimli ucreti hesaplandi: {nakitGenel}");
                 }
-
             }
 
-
-            LogToTerminal(string.Format("Toplam ücret (normalde): {0} \n                                        || Toplam süre: {1}", totalWeight1+taksiucreti , totalWeight2+taksiucreti));
+            LogToTerminal(string.Format("Toplam ücret (normalde): {0}", totalWeight1+taksiucreti ));
             LogToTerminal("📍 Rotalar başarıyla çizildi.");
 
             if (points1.Count > 0 || points2.Count > 0)
@@ -568,7 +559,6 @@ namespace HaritaUygulamasi
             taksi.mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum, lat_hedef, lon_hedef);
             taksiucreti = 0; 
             taksiucreti = taksi.UcretHesapla() + taksiucreti;
-
 
             LogToTerminal($"Direkt Taksi Rotası Ücreti: {taksiucreti} TL"); 
         }
