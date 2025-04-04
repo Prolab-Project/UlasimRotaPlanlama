@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 using System.Text.Json; 
 namespace UlasimRotaPlanlama.Models.Arac
 {
-    public class Taksi : Arac, Durak
+    public class Taksi : Durak, Mesafe, Ucret
     {
-        
         public double openingFee;
         public double costPerKm;
         public bool taksi_bin;
@@ -63,9 +62,7 @@ namespace UlasimRotaPlanlama.Models.Arac
         }
 
         public double UcretHesapla()
-        {
-            
-                //Console.WriteLine(costPerKm);
+        {  
                 toplamucret = costPerKm * (mesafe );
                 Console.WriteLine(toplamucret);
                 

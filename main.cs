@@ -550,11 +550,6 @@ namespace HaritaUygulamasi
                 Arac enYakinDurak = null;
                 Arac hedefEnYakinDurak = null;
 
-                for (int i = 0; i < Durak.Count; i++)
-                {
-                    Console.WriteLine($"Durak {i}: " + Durak[i].name);
-                }
-
                 foreach (var durak in Durak)
                 {
                     double mesafe = mesafeHesapla.MesafeHesapla(lat_konum, lon_konum, durak.lat, durak.lon);
@@ -727,10 +722,6 @@ namespace HaritaUygulamasi
                             yakinDurakBul.graph.AddEdge(tramvay, matchingStop, ucretlist[i]);
                             i++;
                         }
-                        else
-                        {
-                            Console.WriteLine($"Ücret listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
-                        }
                     }
                 }
 
@@ -760,8 +751,6 @@ namespace HaritaUygulamasi
                             continue;
                         }
 
-                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
-
                         if (!string.IsNullOrEmpty(nextStop))
                         {
                             var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
@@ -770,10 +759,6 @@ namespace HaritaUygulamasi
                             {
                                 yakinDurakBul.graph2.AddEdge(otobus, matchingStop, surelist[a]);
                                 a++;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
                             }
                         }
                     }
@@ -793,8 +778,6 @@ namespace HaritaUygulamasi
                             continue;
                         }
 
-                        Console.WriteLine($"Geçerli NextStop: {nextStop}");
-
                         if (!string.IsNullOrEmpty(nextStop))
                         {
                             var matchingStop = aracDuraklari.FirstOrDefault(d => d.id.Trim() == nextStop.Trim());
@@ -803,10 +786,6 @@ namespace HaritaUygulamasi
                             {
                                 yakinDurakBul.graph2.AddEdge(tramvay, matchingStop, surelist[a]);
                                 a++;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Süre listesi sınırı aşıldı veya eşleşen durak bulunamadı: {nextStop}");
                             }
                         }
                     }
