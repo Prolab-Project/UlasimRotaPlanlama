@@ -470,17 +470,6 @@ namespace HaritaUygulamasi
             double indirimliUcretYasli = yasli.UcretHesapla(totalWeight1) + taksiucreti;
             double indirimliUcretGenel = genel.UcretHesapla(totalWeight1) + taksiucreti;
 
-        if (isOgrenciSelected){
-            LogToTerminal($"Ogrenci oldugunuz icin indirim uygulandi! Indirimli ucret : {indirimliUcretOgrenci}");
-        }
-        
-        if (isYasliSelected){
-            LogToTerminal($"Yasli oldugunuz icin indirim uygulandi! Indirimli ucret : {indirimliUcretYasli}");
-        }
-        
-        if (isGenelSelected){
-            LogToTerminal($"Genel oldugunuz icin indirim uygulanmadi! Indirimli ucret : {indirimliUcretGenel}");
-        }
 
             double odemeliUcretKentKart = 0;
             double odemeliUcretNakit = 0; 
@@ -490,31 +479,71 @@ namespace HaritaUygulamasi
             Nakit nakit = new Nakit();
             KentKart kentkart = new KentKart();
 
-            if (isKentKartSelected)
+
+            if (isOgrenciSelected)
             {
-                Console.WriteLine($"Kentkart secilmis indirimsiz {totalWeight1}"); 
-                odemeliUcretKentKart = kentkart.Hesapla(totalWeight1);
-                Console.WriteLine($"Kentkart ucreti hesaplandi: {odemeliUcretKentKart}");
-                LogToTerminal("Kentkart seçtiğiniz için indirimli ücret : " + odemeliUcretKentKart);
+                LogToTerminal($"Ogrenci oldugunuz icin indirim uygulandi! Indirimli ucret : {indirimliUcretOgrenci}");
+                if (isKentKartSelected)
+                {
+                    double kentKartOgrenci = kentkart.Hesapla(indirimliUcretOgrenci);
+                    LogToTerminal($"Kentkart sectiginiz ve ogrenci oldugunuz icin indirimli ucreti hesaplandi: {kentKartOgrenci}");
+                }
+                if (isKrediKartiSelected)
+                {
+                    double krediKartOgrenci = kredikarti.Hesapla(indirimliUcretOgrenci);
+                    LogToTerminal($"Kredi karti sectiginiz ve ogrenci oldugunuz icin indirimli ucreti hesaplandi: {krediKartOgrenci}");
+                }
+                if (isNakitSelected)
+                {
+                    double nakitOgrenci = nakit.Hesapla(indirimliUcretOgrenci);
+                    LogToTerminal($"Nakit sectiginiz ve ogrenci oldugunuz icin indirimli ucreti hesaplandi: {nakitOgrenci}");
+                }
+
             }
 
-            if (isNakitSelected)
+            if (isYasliSelected)
             {
-                Console.WriteLine($"Nakit secilmis indirimsiz {totalWeight1}");
-                odemeliUcretNakit = nakit.Hesapla(totalWeight1);
-                Console.WriteLine($"Nakit ucreti hesaplandi: {odemeliUcretNakit}");
-                LogToTerminal("Nakit seçtiğiniz için indirimli ücret : " + odemeliUcretNakit);
+                LogToTerminal($"Yasli oldugunuz icin indirim uygulandi! Indirimli ucret : {indirimliUcretYasli}");
+                if (isKentKartSelected)
+                {
+                    double kentKartYasli = kentkart.Hesapla(indirimliUcretYasli);
+                    LogToTerminal($"Kentkart sectiginiz ve yasli oldugunuz icin indirimli ucreti hesaplandi: {kentKartYasli}");
+                }
+                if (isKrediKartiSelected)
+                {
+                    double krediKartYasli = kredikarti.Hesapla(indirimliUcretYasli);
+                    LogToTerminal($"Kredi karti sectiginiz ve yasli oldugunuz icin indirimli ucreti hesaplandi: {krediKartYasli}");
+                }
+                if (isNakitSelected)
+                {
+                    double nakitYasli = nakit.Hesapla(indirimliUcretYasli);
+                    LogToTerminal($"Nakit sectiginiz ve yasli oldugunuz icin indirimli ucreti hesaplandi: {nakitYasli}");
+                }
             }
 
-            if (isKrediKartiSelected)
+            if (isGenelSelected)
             {
-                Console.WriteLine($"krediakrt secilmis indirimsiz {totalWeight1}");
-                odemeliUcretKrediKarti = kredikarti.Hesapla(totalWeight1);
-                Console.WriteLine($"Kredikart ucreti hesaplandi: {odemeliUcretKrediKarti}");
-                LogToTerminal("Kredi kartı seçtiğiniz için indirimli ücret: " + odemeliUcretKrediKarti);
+                LogToTerminal($"Genel oldugunuz icin indirim uygulanmadi! Indirimli ucret : {indirimliUcretGenel}");
+                if (isKentKartSelected)
+                {
+                    double kentKartGenel = kentkart.Hesapla(indirimliUcretGenel);
+                    LogToTerminal($"Kentkart sectiginiz ve genel oldugunuz icin indirimli ucreti hesaplandi: {kentKartGenel}");
+                }
+                if (isKrediKartiSelected)
+                {
+                    double krediKartGenel = kredikarti.Hesapla(indirimliUcretGenel);
+                    LogToTerminal($"Kredi karti sectiginiz ve genel oldugunuz icin indirimli ucreti hesaplandi: {krediKartGenel}");
+                }
+                if (isNakitSelected)
+                {
+                    double nakitGenel = nakit.Hesapla(indirimliUcretGenel);
+                    LogToTerminal($"Nakit sectiginiz ve genel oldugunuz icin indirimli ucreti hesaplandi: {nakitGenel}");
+                }
+
             }
 
-            LogToTerminal(string.Format("Toplam ücret: {0} \n TL Indirimli Ogrenci Ucreti : {2} TL \n Indirimli Yasli Ucreti : {3} TL                                           || Toplam süre: {1}", totalWeight1+taksiucreti , totalWeight2+taksiucreti , indirimliUcretOgrenci, indirimliUcretYasli));
+
+            LogToTerminal(string.Format("Toplam ücret (normalde): {0} \n                                        || Toplam süre: {1}", totalWeight1+taksiucreti , totalWeight2+taksiucreti));
             LogToTerminal("📍 Rotalar başarıyla çizildi.");
 
             if (points1.Count > 0 || points2.Count > 0)
